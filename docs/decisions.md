@@ -25,10 +25,20 @@ explicit list rather than a wildcard. Wide looks good on a slide and does not fi
 a weekend.
 
 #### D3 — Existing Earthdata MCP server, or reimplement access?
-**Status:** leaning — try the existing server in the first hour
+**Status:** effectively settled 2026-08-25 — **be a client of `nasa/earthdata-mcp`**
 
 Aimee's resources reference one. If it works, the librarian is a client rather than an
 integration. It removes plumbing, not judgement.
+
+Resolved by probing it live during Joe Hamman's MCP talk — see
+[notes/2026-08-25-joe-hamman-mcp.md](notes/2026-08-25-joe-hamman-mcp.md).
+`https://cmr.earthdata.nasa.gov/mcp/v1` is hosted by NASA, on streamable HTTP, pushed
+four days ago, exposing seven CMR tools — and **discovery needs no authentication**.
+Earthdata Login is required only for granule download. Two rival servers
+(datalayer, podaac) are four to five months stale.
+
+Confirm with Aimee that this is the server her resources point at, then treat it as
+settled. One caveat before we depend on it: **the repo declares no license.**
 
 ### Before the demo
 
@@ -67,6 +77,13 @@ Can a model pull resolution, quality-flag conventions and minimum meaningful are
 of DAAC documentation reliably enough to act on — or must the demo set be curated by
 hand? This is the load-bearing assumption of the whole design, and the cheapest thing
 to test. Try three datasets.
+
+**Narrowed 2026-08-25.** The NASA MCP's `get_variables` (UMM-V) already returns
+`scale`, `offset`, `fill_values`, `valid_ranges` and `units`; `get_services` returns
+access endpoints. So parts of identity and access come free and structured from CMR.
+**None of the fitness fields do** — `native_resolution_m`, `quality_flag_convention`,
+`min_meaningful_area_km2` and `cautions[]` are still ATBD/DAAC-guide territory. Test
+extraction against the fitness block only; don't spend day one re-deriving UMM-V.
 
 ---
 
