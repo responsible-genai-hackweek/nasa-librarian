@@ -161,3 +161,126 @@ can see it.
   applications field.
 - Cheap follow-up whenever we get there: `get_citations` already gives a free
   `observed_uses[]` seed for any collection.
+
+---
+
+## The Earthmover applications field, examined
+
+Jim pasted the ERA5 marketplace page. The shape is now clear.
+
+### The schema Joe is actually using
+
+`Applications` is a top-level section containing `Use Cases`, a list of ~10 entries.
+Every entry has the same three-slot form:
+
+```
+<domain>: <task> using <specific variables>
+```
+
+Examples, verbatim:
+
+> **Renewable energy assessment:** Wind resource analysis using 10 m and 100 m wind
+> components; solar resource evaluation using radiation variables
+>
+> **Agriculture and food security:** Soil moisture, multi-layer soil temperature, and
+> precipitation analysis for crop modeling and yield prediction
+>
+> **Air quality modeling:** Boundary layer height and meteorological inputs for pollution
+> dispersion models
+
+**The load-bearing detail: each use case names the variables it uses.** It is not "good
+for agriculture" — it is *these variables, for this task*. That binds application to
+variable, which is machine-actionable and better than anything in UMM-C.
+
+### It is a third epistemic category we had not named
+
+Our earlier design had two fields. Joe's is neither:
+
+| | Source | Evidence | Example |
+|---|---|---|---|
+| `validated_uses[]` | producer/expert, vouched | a validation study | "validated for regional SM assimilation" |
+| **`suggested_uses[]`** | **curator, editorial** | **none — plausibility** | **Joe's field** |
+| `observed_uses[]` | third party, in the wild | a citation | "used in this paper / blog post" |
+
+Joe's field carries the **curator's authority without evidence**. That is not a flaw —
+it is onboarding copy, and it is genuinely useful. But it is a distinct trust level and
+must be modelled as one.
+
+### The finding: the ERA5 page demonstrates our gap, in the best commercial example available
+
+> **Agriculture and food security:** Soil moisture, multi-layer soil temperature, and
+> precipitation analysis for crop modeling and yield prediction
+
+ERA5 is **31 km (0.25°)** — roughly 961 km² per pixel. That entry is entirely correct for
+*regional and national* food-security work, which is a real and important application.
+It is entirely wrong for a farmer's 40 ha field, which is 0.4 km² — **one two-thousandth
+of a pixel.**
+
+The page never connects the two. Resolution is stated in *Data Characteristics*; the use
+cases are three sections away and carry **no scale qualifier**. A land manager reading
+"agriculture and food security… crop modeling and yield prediction" has been given a true
+statement that will lead them somewhere false.
+
+This is fair rather than a gotcha — Joe said outright they are "making it up," and adding
+an applications field at all is the right direction, well beyond standard metadata. But
+it shows the shape of the gap precisely:
+
+> **An application says what you can do. Fitness says at what scale you can do it.
+> Neither is sufficient alone**, and an application without a scale qualifier is exactly
+> the trap our project exists to catch.
+
+### What the page has, and what it is missing
+
+**Present and worth stealing:**
+
+- **"Query patterns that work well"** — fitness for *access pattern*, bound to the dual
+  chunking (spatial "pancake" 1×721×1440 vs temporal 8736×12×12). Not just "it is
+  chunked" but *which query each layout serves*. That is our `cloud_ready` layer made
+  actionable, and it is the best example of it I have seen.
+- **Example code per use case.** The wind-energy snippet maps to the renewable-energy use
+  case. Applications and recipes are cross-linked — that is Keenan's layer bound to Joe's.
+- **A verification tool** checking the data against the original ECMWF CDS. Adjacent to
+  our CI-verified-recipe idea, applied to the data rather than the snippet.
+- Explicit latency and update cadence; thorough provenance with DOIs and a cutover date;
+  a changelog.
+
+**Absent — and it is our whole list:**
+
+- No resolution-to-question guidance. `0.25°` is stated but never connected to a use.
+- **No cautions, no discouraged uses.** Nothing says what ERA5 is bad for.
+- No uncertainty, though reanalysis has well-known biases.
+- No minimum meaningful area.
+- QC flags exist (`status/` group, per-hour flags) but no convention for using them.
+
+The most sophisticated commercial dataset page available is excellent on *what it is*,
+*how to reach it*, and *what it is for* — and silent on *when not to use it*.
+
+### The small proposal this suggests
+
+Joe's entry format needs one more slot:
+
+```
+  now:  <domain>: <task> using <variables>
+  ours: <domain>: <task> using <variables>  at <scale>  ·  not for <scale>
+```
+
+Concretely:
+
+> Agriculture and food security: soil moisture, multi-layer soil temperature and
+> precipitation for crop modelling and yield prediction **at regional to national scale
+> (≥ 100 km). Not for field or county scale — one pixel is ~961 km².**
+
+That is a small, well-motivated delta to a field that already exists in a shipping
+product, which is a far better proposal target than a greenfield vocabulary. **Take it to
+Joe** — he owns the field, he is in the building, and the addition is one clause per
+entry.
+
+### Consequences for our design
+
+- Model **three** use categories, not two: `validated_uses[]`, `suggested_uses[]`,
+  `observed_uses[]`. Different authority, different role in the desk's reasoning.
+- **Bind uses to variables**, as Joe does. A use case that names its variables can be
+  checked against what the user needs; one that names only a domain cannot.
+- **Every use entry carries a scale qualifier**, or it is not admissible to the desk.
+  This is the rule that keeps a suggested use from becoming a recommendation.
+- Steal "query patterns that work well" as the presentation form for `cloud_ready`.
