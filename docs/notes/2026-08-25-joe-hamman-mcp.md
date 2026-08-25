@@ -219,3 +219,37 @@ for the schema — worth deciding early:
 - The `{value, source, confidence}` triple is already three times the size of a bare
   value. It earns that on fitness fields where provenance decides trust. Consider
   whether it earns it everywhere, or whether identity/access fields can stay bare.
+---
+
+## Probe: does CMR already carry resolution? (2026-08-25)
+
+`get_collections` returns `spatial_resolution` and `temporal_resolution` as
+"extracted resolution strings" — so resolution *is* in the response, though it is not
+a filterable parameter. (Filterable params are only: `concept_id`, `cursor`, `fields`,
+`has_granules`, `instrument`, `keyword`, `limit`, `platform`, `processing_level_id`,
+`provider`, `short_name`, `spatial_wkt_geometry`, `temporal_*`. No sort. No resolution
+filter. No quality filter.)
+
+Queried the four datasets from our own persona examples:
+
+| short_name | `spatial_resolution` | `temporal_resolution` |
+|---|---|---|
+| HLSL30 | `"30x30 Meters"` | `"1 Day"` |
+| SPL3SMP | `"36.0x36.0 Kilometers"` | `"1 Day"` |
+| MOD16A2 | `"500x500 Meters"` | `"8 Day"` |
+| **GPM_3IMERGHH** | **`null`** | **`null`** |
+
+**The dataset our memo names as the trap has no resolution in the catalog at all.**
+IMERG — the one the land-manager persona must be prevented from accepting — is the
+one CMR does not characterise. Its 0.1° grid appears only in the free-text
+`entry_title`, and converting 0.1° to ~11 km requires knowing the latitude.
+
+The three that are populated are free-text with mixed units (`Meters` vs
+`Kilometers`, `30x30` vs `36.0x36.0`) — parseable, but not comparable without
+normalisation.
+
+**This answers R1 for the most important single field.** Resolution is: partially
+present, unnormalised, and null exactly where the fitness question is hardest. An
+agent working from CMR alone cannot learn that IMERG is too coarse for a county,
+because CMR does not say so. That is the readiness record's job, demonstrated in one
+call.
