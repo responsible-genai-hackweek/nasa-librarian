@@ -8,6 +8,11 @@ The system is a reference desk for NASA Earth data: it interviews the user, find
 what fits, hands back code that runs — and says plainly when nothing in the holdings
 answers the question at the scale asked.
 
+**Stated as a role:** we are automating the most-repeated part of what a research
+software engineer, a DAAC user-services team, or a science data librarian does — the
+question-driven triage that decides *which* data can answer *this* question, and how it
+must be handled. See [Who does this today](#who-does-this-today).
+
 ## The gap being addressed
 
 **The catalog describes what a dataset *is*. Fitness is a relation between a dataset
@@ -96,6 +101,80 @@ Characterise even five datasets and the same query returns:
 
 **The unlock is that "no" becomes computable.** Today no agent can say it, because the
 facts required are not anywhere.
+
+### Who does this today
+
+<a id="who-does-this-today"></a>
+
+A person. Specifically: a **research software engineer** embedded in a lab, a **DAAC
+user-services team**, or the colleague who has used a product for a decade and can tell
+you in one sentence why it won't work for you.
+
+That is the clearest statement of what this project is for. Not a better search engine —
+an attempt to make **one specific, scarce, expert judgement reproducible at scale.**
+
+Those people are:
+
+- **Scarce and expensive.** Every DAAC has a handful; most labs have none.
+- **Not scalable.** The triage is delivered one email, one office hour, one Slack thread
+  at a time.
+- **Undocumented.** Their knowledge is the thing we keep saying "lives in people who have
+  used a product for a decade." When they retire it leaves with them.
+- **Answering the same question repeatedly** for different users with similar needs.
+
+That last point is the opening. The judgement is *per question*, but the **facts it rests
+on are per dataset** — and those get re-derived from scratch every time, by a person,
+from an ATBD.
+
+> **The readiness record is where that expert's knowledge gets written down once,
+> instead of being re-delivered by email fifty times.**
+
+We are not replacing them. The record is the artifact where the repeated part of their
+work becomes reusable, and the desk is what applies it when they are not in the room.
+
+#### What that role actually delivers — and what we are copying
+
+| What the expert provides | Our artifact |
+|---|---|
+| "Use HLS, not SMAP, for parcel-scale work" | compatibility report — the chosen dataset with the axis that decided it |
+| "SMAP won't resolve your fields, but it's fine as county context" | the *rejected* entries, with the axis that killed each |
+| "Nothing in the holdings answers that at the scale you're asking" | the refusal, as a first-class output |
+| "Mask with Fmask or you'll ruin the time series" | caveats carried into the access recipe |
+| "This product has been validated for X, not Y" | `validated_uses[]` / `cautions[]` |
+
+Note that **"usage patterns" is two different things**, both in scope and produced by
+different people: `validated_uses[]` is *what this data has been used for successfully*
+(Aimee, cached, per dataset); the access recipe is *how to touch it correctly* (Keenan,
+per selection).
+
+#### Two things that framing must not obscure
+
+**1. The record holds operands, not answers.** The fields hold *dataset properties* —
+facts true regardless of who asks. Nothing is pre-computed. *Fit for the question* cannot
+exist until someone asks; if answers were stored you would need one per
+(dataset × question), which is unbounded. The design depends on caching the operands and
+computing the relation fresh.
+
+**2. Half the input comes from the user, not from metadata.** No amount of metadata
+enrichment produces guidance on its own, because *"is 9 km too coarse?"* has no answer
+until someone says what they are measuring.
+
+```
+DATASET SIDE (cached · Aimee)           QUESTION SIDE (per query · the interview)
+UMM-C Quality / Purpose / Resolution    unit of analysis · time window
++ ISO useLimitation                     what "drying" means here · effect size
++ the 3 fields nobody defines           operational or retrospective
+          │                                          │
+          └─────────────► LIBRARIAN ◄────────────────┘
+                             │
+                             ▼
+                COMPATIBILITY REPORT  →  RECIPE
+                (the expert's answer, computed per question)
+```
+
+This is the half no MCP server, ISO field or vocabulary can supply — **the provider
+cannot see the question.** It is also the half the expert gets for free by talking to
+you, which is exactly why the desk has to interview.
 
 ### What fitness means, beyond relevance
 
