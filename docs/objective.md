@@ -1,8 +1,9 @@
 # Project: NASA Librarian Agent
 
 ## Objective
-Health researchers and other users access and use NASA Earth data more effectively
-using generative AI.
+Earth science researchers, land and resource managers, and other users outside a
+mission's expert community access and use NASA Earth data more effectively using
+generative AI.
 
 The system is a reference desk for NASA Earth data: it interviews the user, finds
 what fits, hands back code that runs — and says plainly when nothing in the holdings
@@ -69,6 +70,22 @@ facts required are not anywhere.
 A person. Specifically: a **research software engineer** embedded in a lab, a **DAAC
 user-services team**, or the colleague who has used a product for a decade and can tell
 you in one sentence why it won't work for you.
+
+**The tacit knowledge envelope.** Every mission has a core team holding this knowledge.
+Researchers *adjacent* to that team — a lab over, a collaborator, someone who attended
+the workshop — become flexible, capable users of the mission's data. Researchers
+*outside* the envelope largely cannot extract value from it, no matter how open the
+archive is. **Openness is not access.** The project's target is the population outside
+the envelope, and the measure of success is how far the envelope extends without adding
+people to the mission team.
+
+J.P. Swinski (SlideRule, 2026-08-25) described his own job in exactly these terms:
+taking the scientific ideas of Tyler Sutterley and David Shean and delivering them
+either as **best-practice default options** or through **a system that asks questions
+leading to good choices** — and SlideRule as a technology push to *reduce the scientific
+insight required from ICESat-2 experts and enable wider use of the data*. Those are our
+two mechanisms, named independently: defaults baked into the recipe, and the
+disagreement-driven interview.
 
 That is the clearest statement of what this project is for. Not a better search engine —
 an attempt to make **one specific, scarce, expert judgement reproducible at scale.**
