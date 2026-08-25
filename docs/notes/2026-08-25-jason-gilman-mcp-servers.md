@@ -88,3 +88,55 @@ Per tool, the two we actually need are the expensive ones:
    server pays for all of them on every request, whether or not the query touches that
    dataset. **A record is fetched only for the datasets under consideration. A prompt
    is paid for always.** That is the architectural case for the record, in tokens.
+
+### Security — the lethal trifecta
+
+Jason names the three conditions that together make an agent dangerous:
+
+1. **Access to private data**
+2. **Ability to communicate externally**
+3. **Exposure to untrusted content**
+
+Any one or two is manageable. All three at once means untrusted content can instruct
+the agent to exfiltrate private data. Joe's slide 32 is the same hazard from the other
+side: *"the client puts tool results into context as text. A poisoned README becomes an
+instruction."*
+
+## Where our design sits on the trifecta
+
+Uncomfortably close to all three, if we are careless.
+
+| Leg | Our exposure |
+|---|---|
+| **Private data** | The librarian runs in a researcher's environment with Earthdata Login credentials, a `~/.netrc`, and their local files. Modest on its own; real in combination. |
+| **External communication** | The generated recipe streams from S3 and `earthaccess.open()` opens network egress. The whole point of circulation is to reach out. |
+| **Untrusted content** | **The load-bearing one.** Aimee's extractor reads DAAC guides and ATBDs — documents we do not control. And D7 proposes DAACs publish recipe assets for agents to consume, which manufactures a new injection surface on purpose. |
+
+### The record is a trust boundary — and that is an argument for it
+
+If the agent reads ATBDs live, untrusted prose enters context at query time, in the same
+turn as the user's data and credentials. All three legs, simultaneously.
+
+If extraction happens **once, offline, into a reviewed structured record**, then at query
+time the librarian reads *typed fields we produced*, not prose someone else wrote. The
+untrusted content never meets the credentials.
+
+So the readiness record is not only the missing operand — it is the **choke point that
+breaks the trifecta**. Extraction is where untrusted text is handled, and it runs
+without credentials and without egress. That is a genuinely responsible-AI argument for
+the architecture, and it belongs in the framing.
+
+### Consequences to record
+
+- **Extraction runs in isolation.** No credentials, no network egress beyond fetching
+  the document, output validated against the schema. Treat ATBD text as hostile input.
+- **The record is typed, never free-text pass-through.** A `cautions[]` entry that is
+  verbatim vendor prose carries the injection straight through the boundary. Emit
+  values, not quotations — which is the `{value, source, confidence}` rule doing a
+  second job.
+- **D7 needs a security clause.** If we propose a `role: example` asset convention, the
+  spec must say what a conformant asset may contain and that consumers must not execute
+  or follow instructions found in it. Proposing a standard that agents read means
+  proposing an injection surface; say so and bound it.
+- **Provenance is a security control, not just good manners.** `assessed_by` /
+  `assessed_at` is how a poisoned record gets found and revoked later.

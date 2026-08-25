@@ -72,6 +72,49 @@ Characterise even five datasets and the same query returns:
 **The unlock is that "no" becomes computable.** Today no agent can say it, because the
 facts required are not anywhere.
 
+### What fitness means, beyond relevance
+
+Relevance is a property of the dataset alone — do its indexed words match the words in
+the question? It yields an *ordering*, so there is always a top result. That is why 287
+hits arrive with a number one and nothing that says stop: **a ranking cannot return
+nothing.**
+
+Fitness is a predicate over **(dataset, question, place, time)** and can be false for
+every candidate. It is *non-monotone in relevance* — IMERG is more relevant to the word
+"precipitation" than HLS is, and less fit for the question — so sorting harder never
+finds it out.
+
+And it is not one comparison but about ten, failing independently:
+
+| Axis | Record supplies | Interview supplies | Failure it catches |
+|---|---|---|---|
+| **Can it see the thing?** | | | |
+| Spatial resolvability | `native_resolution_m`, `min_meaningful_area_km2` | unit of analysis | 9 km pixel vs 630 m parcel |
+| Temporal cadence | `temporal_cadence` | rate of the process | 8-day composite vs flash drought |
+| Record length | `time_start`, `time_end` | window the trend needs | 5-year mission vs 30-year question |
+| Latency | `latency` | operational or retrospective | 3-month lag on a "right now" question |
+| **Does it measure the thing?** | | | |
+| Semantic match | `measured_variable`, `validated_uses[]` | what the word means here | "precipitation" ≠ "dryness"; surface soil moisture ≠ root zone |
+| Retrieval validity | `known_artifacts[]`, `cautions[]` | where | SMAP degrades over mountains and dense vegetation — half of Boulder County |
+| Detectability | `uncertainty` | expected effect size | retrieval error larger than the trend |
+| **Can it be used correctly?** | | | |
+| Handling obligation | `quality_flag_convention` | — always applies | unmasked HLS quietly ruins a time series |
+| Joint usability | `crs`, grid, overpass time | which datasets combine | two fit datasets that will not co-register |
+| Practical reach | `format`, volume, `protocol`, `auth` | compute and skill on hand | 2 TB for one county-decade |
+
+Three consequences:
+
+1. **Fitness is per-set, not only per-dataset.** Joint usability is a property of the
+   combination, and the deliverable is a co-registered cube — so the desk must judge
+   pairs, not just rank singles.
+2. **Fitness is place-dependent.** The same product is fit in Kansas and unfit in the
+   Rockies. A global verdict is not enough; `cautions[]` must be able to carry regional
+   conditions.
+3. **Half the operands come from the person asking.** Which is why the desk interviews
+   before it answers, and why the record must exist before the desk can. Relevance needs
+   one operand and the catalog has it. Fitness needs two, and today *neither* side is
+   written down — the dataset half lives in ATBDs, the question half is never elicited.
+
 ### Two kinds of refusal — do not blur them
 
 They look alike and are not. NASA's MCP already does the first, and does it well.
