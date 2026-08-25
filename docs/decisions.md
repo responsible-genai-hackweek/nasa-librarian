@@ -2,8 +2,8 @@
 
 ## Open decisions
 
-Nine decisions and two open risks. D1–D7 and R1 carry over from the architecture memo
-of 2026-08-24; D8, D9 and R2 opened 2026-08-25. Ordered by when they stop being free to
+Ten decisions and two open risks. D1–D7 and R1 carry over from the architecture memo
+of 2026-08-24; D8, D9, D10 and R2 opened 2026-08-25. Ordered by when they stop being free to
 answer — the first three are gated on nothing and block everything.
 
 Status values: `open` · `leaning` · `decided` · `superseded`.
@@ -127,6 +127,33 @@ one hardcoded dataset caveat.
 
 **The point that matters: NASA's server exposes no readiness primitive of any kind** —
 no tool and no resource. The slot is empty in both forms.
+
+#### D10 — RAG over documents, or extraction into a schema?
+**Status:** leaning — **both, with a strict division of labour**
+
+Opened 2026-08-25 after [AquiLLM](https://arxiv.org/abs/2508.05648) (Campbell, Boscoe &
+Do) — a RAG system for capturing research groups' **tacit knowledge**. See
+[notes/2026-08-25-aquillm.md](notes/2026-08-25-aquillm.md). SlideRule made the same
+choice the other way, serving docs behind a retrieval endpoint.
+
+We had made this choice implicitly. Make it explicit:
+
+| | Retrieval index | Readiness record |
+|---|---|---|
+| Ingest cost | very low | high — each field authored |
+| Preserves nuance | verbatim | lossy by design |
+| Arbitrary questions | yes | only what the schema anticipated |
+| **Computes a comparison** | **no** | **yes** |
+
+**The deciding property:** retrieval can surface the paragraph saying *"above 80°N,
+multiple overpasses can be gridded into a single MGRS tile."* It cannot compare 80°N to
+a bounding box. The fitness axes are comparisons, not lookups — so the ranking loop needs
+the record.
+
+But the record only holds what we thought to define. So: **schema for the ten axes;
+retrieval for the long tail and as the authoring surface for the `authored/` tier.**
+Keep the corpora separate — mixing private group material with untrusted DAAC prose in
+one index puts two legs of the lethal trifecta in the same context.
 
 ### Open risk
 

@@ -119,7 +119,10 @@ Those people are:
 - **Not scalable.** The triage is delivered one email, one office hour, one Slack thread
   at a time.
 - **Undocumented.** Their knowledge is the thing we keep saying "lives in people who have
-  used a product for a decade." When they retire it leaves with them.
+  used a product for a decade." The literature calls this **tacit knowledge** — informal,
+  experience-based expertise passed down orally through meetings, mentoring and daily
+  collaboration ([Campbell, Boscoe & Do 2025](https://arxiv.org/abs/2508.05648)). When
+  they retire it leaves with them.
 - **Answering the same question repeatedly** for different users with similar needs.
 
 That last point is the opening. The judgement is *per question*, but the **facts it rests
