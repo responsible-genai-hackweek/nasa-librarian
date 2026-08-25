@@ -2,9 +2,9 @@
 
 ## Open decisions
 
-Seven decisions and one open risk, carried over from the architecture memo of
-2026-08-24. Ordered by when they stop being free to answer — the first three are gated
-on nothing and block everything.
+Nine decisions and two open risks. D1–D7 and R1 carry over from the architecture memo
+of 2026-08-24; D8, D9 and R2 opened 2026-08-25. Ordered by when they stop being free to
+answer — the first three are gated on nothing and block everything.
 
 Status values: `open` · `leaning` · `decided` · `superseded`.
 When one is settled, move it down to **Decided** below with context and consequences.
@@ -68,6 +68,66 @@ A `role: example` asset with CI-verified snippets is proposable to STAC and to t
 DAACs — an artifact that outlives the weekend. A spec plus one instance beats a
 prototype.
 
+**Note 2026-08-25.** This is about the *recipe*. The *record's vocabulary* is now a
+separate question — see D8, which has a much stronger venue than a from-scratch STAC
+convention.
+
+#### D8 — Which vocabulary for the readiness record?
+**Status:** leaning — **adopt GeoCroissant; propose the fitness block as an extension**
+
+Opened 2026-08-25 after Rajat pointed at Croissant. See
+[notes/2026-08-25-croissant-geocroissant.md](notes/2026-08-25-croissant-geocroissant.md).
+
+**Rajat Shinde (NASA IMPACT / UAH) leads GeoCroissant** — spec 1.0, published
+2026-01-29. He authored the standard he pointed at, so adoption costs nothing in
+negotiation and extension is a live option rather than a hopeful proposal.
+
+GeoCroissant closes the **Shape** block properly. `geocr:spatialResolution` is a
+`QuantitativeValue` — a number with a unit, defined as ground sampling distance per
+pixel — which is exactly the normalised field CMR lacks. Also
+`geocr:coordinateReferenceSystem`, `geocr:temporalResolution`,
+`geocr:bandConfiguration`, `geocr:recordEndpoint`.
+
+It does **not** close the **Fitness** block. No `quality_flag_convention`, no
+`uncertainty`, no `min_meaningful_area_km2`, no `known_artifacts[]`. The nearest
+neighbours are free text aimed at a different question: `geocr:spatialBias` means a
+training set under-samples a region; `rai:dataUseCases` is an ML-lifecycle enum
+(Training / Testing / Validation), not science use. The **Recipe & verdict** block has
+no counterpart at all.
+
+So: use their names where they exist, extend where they don't, via the spec's own
+escape hatch (`sc:additionalProperty` / `sc:PropertyValue`, or a namespace of ours).
+**Do not invent parallel names for fields GeoCroissant already defines.**
+
+Ask Rajat: is a fitness extension welcome, and what populates `geocr:spatialResolution`
+when the source STAC collection does not carry it?
+
+#### D9 — How does the librarian obtain a record?
+**Status:** leaning — **an MCP tool for the loop, a resource for citation; both from one
+record**
+
+Opened 2026-08-25. The three MCP primitives differ by *who controls them*:
+
+| Primitive | Who decides | Context cost |
+|---|---|---|
+| **Tool** | the **model**, mid-reasoning | description sits in context **every turn** |
+| **Resource** | the **user or client**, attached deliberately | nothing until read |
+| **Prompt** | the user, as a slash command | nothing until invoked |
+
+The ranking loop is model-driven — the librarian pulls records for five candidates
+while comparing them — so it needs a **tool** (`get_readiness(concept_id)`). Resources
+are application-controlled and will not serve that. A **resource**
+(`readiness://collection/{concept_id}`) is right for citation, browsing, and a methods
+section.
+
+The token economics favour this: one tool description is a few hundred tokens standing,
+and records load only for datasets actually under consideration — against NASA's
+4,812-token instructions block, which every request pays for and which carries exactly
+one hardcoded dataset caveat.
+
+**The point that matters: NASA's server exposes no readiness primitive of any kind** —
+no tool and no resource. The slot is empty in both forms.
+
 ### Open risk
 
 #### R1 — Where does fitness knowledge actually come from?
@@ -81,9 +141,34 @@ to test. Try three datasets.
 **Narrowed 2026-08-25.** The NASA MCP's `get_variables` (UMM-V) already returns
 `scale`, `offset`, `fill_values`, `valid_ranges` and `units`; `get_services` returns
 access endpoints. So parts of identity and access come free and structured from CMR.
-**None of the fitness fields do** — `native_resolution_m`, `quality_flag_convention`,
-`min_meaningful_area_km2` and `cautions[]` are still ATBD/DAAC-guide territory. Test
-extraction against the fitness block only; don't spend day one re-deriving UMM-V.
+`get_collections` also returns `spatial_resolution` and `temporal_resolution` — but as
+free text in mixed units (`"36.0x36.0 Kilometers"` vs `"30x30 Meters"`), and **`null`
+for GPM_3IMERGHH**, the one dataset our land-manager persona must be prevented from
+accepting.
+
+**None of the fitness fields are available at all** — `quality_flag_convention`,
+`uncertainty`, `min_meaningful_area_km2`, `known_artifacts[]` and `cautions[]` remain
+ATBD/DAAC-guide territory. Test extraction against the fitness block only; don't spend
+day one re-deriving UMM-V.
+
+**And note what D8 does not change.** GeoCroissant defines `geocr:spatialResolution` as
+a proper quantity, which fixes the *schema* problem. It does not populate it. Croissant
+is a vocabulary, not a corpus — IMERG's `null` does not become 11 km because a field
+for it exists somewhere. R1 is a question about **producing values**, and adopting a
+better vocabulary leaves it exactly where it was.
+
+#### R2 — Scope absorption
+**Status:** open · opened 2026-08-25
+
+Three agent-layer efforts are already in flight: NASA's `earthdata-mcp` (pushed four
+days ago, its instructions visibly growing to absorb this kind of guidance), **ChatGSFC**
+(NASA-internal, 9,000+ users, Jason Gilman), and **Element 84**'s general-purpose
+geospatial agent. A fourth agent is not a contribution.
+
+None of them builds the characterisation layer. So bet on artifacts a system prompt
+cannot hold — the record and the vocabulary extension (D8), not better agent behaviour.
+Anything we build as *a smarter agent* is on a collision course; anything we build as
+*the operand nobody supplies* is not.
 
 ---
 

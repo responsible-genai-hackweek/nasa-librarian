@@ -150,11 +150,51 @@ access (`protocol`, `auth`, `endpoints[]`), shape (`format`, `structure`, `crs`,
 `min_meaningful_area_km2`, `validated_uses[]`, `cautions[]`), recipe & verdict
 (`access_recipe`, `recipe_last_verified`, `cloud_ready`, `ai_ready`, `blockers[]`).
 
-Vocabulary follows the ESIP AI-ready data checklist, which gives the schema a citable
-lineage. **The trap in adopting it literally:** every ESIP item is a *presence*
-question. The librarian doesn't need presence, it needs the value. "Resolution is
-documented" is useless; `30 m, from the ATBD, high confidence` is the ballgame. Emit
-`{value, source, confidence}` wherever a value exists.
+#### Vocabulary: GeoCroissant, extended
+
+Use **GeoCroissant** names where they exist rather than inventing parallel ones — spec
+1.0, published 2026-01-29, **led by Rajat**. See decisions.md D8.
+
+| Our field | GeoCroissant | Type |
+|---|---|---|
+| `crs` | `geocr:coordinateReferenceSystem` | structured, EPSG |
+| `native_resolution_m` | `geocr:spatialResolution` | **`QuantitativeValue` — number + unit** |
+| `temporal_cadence` | `geocr:temporalResolution` | `QuantitativeValue` |
+| endpoints | `geocr:recordEndpoint` | OGC API – Records URL |
+
+That closes the **shape** block properly, and `geocr:spatialResolution` is precisely the
+normalised quantity CMR does not carry.
+
+The **fitness** block has no GeoCroissant counterpart — `quality_flag_convention`,
+`uncertainty`, `min_meaningful_area_km2` and `known_artifacts[]` are all absent, and
+the near neighbours aim elsewhere (`geocr:spatialBias` is about training-set
+representativeness; `rai:dataUseCases` is an ML-lifecycle enum). Neither does the
+**recipe & verdict** block. **That absence is the project's contribution** — proposed
+as a GeoCroissant extension, which is a far better venue than a from-scratch
+convention.
+
+Earlier lineage: the ESIP AI-ready data checklist. **The trap in adopting either
+literally:** every ESIP item is a *presence* question. The librarian doesn't need
+presence, it needs the value. "Resolution is documented" is useless; `30 m, from the
+ATBD, high confidence` is the ballgame. Emit `{value, source, confidence}` wherever a
+value exists.
+
+**And the trap one level up:** a vocabulary is not a corpus. `geocr:spatialResolution`
+being defined does not populate it — IMERG's `null` in CMR does not become 11 km
+because a field for it exists somewhere. Producing values is still the work.
+
+#### Size, and how it is served
+
+The record is a **compact verdict, not a metadata dump**. The librarian holds five to
+ten at once while ranking, on top of ~10,900 tokens of MCP tool definitions and
+paginated catalog responses. If the record grows to the size of a UMM-C record we have
+rebuilt the problem.
+
+Served two ways from one record (decisions.md D9): an MCP **tool**
+(`get_readiness(concept_id)`) for the ranking loop, because that is model-driven; and
+an MCP **resource** (`readiness://collection/{concept_id}`) for citation and browsing,
+because resources are user- and client-controlled. NASA's server exposes **neither** —
+no readiness primitive of any kind.
 
 ## Why the catalog channel, not the documentation channel
 An agent already knows a great deal about NASA data, absorbed in pretraining. That
@@ -231,6 +271,11 @@ Four tracks that can run in parallel:
 ## Dependencies
 - The science framing (region, question, persona) gates fixtures, gold set and demo
   script — see decisions.md D1. Assign first, not last.
+- **Rajat** on GeoCroissant: whether a fitness extension is welcome, and what populates
+  `geocr:spatialResolution` when the source STAC collection does not carry it (D8).
+- `HarshShinde0/geocr_mcp` — a GeoCroissant MCP server pushed 2026-08-25 that generates
+  GeoCroissant JSON-LD from STAC searches. A *producer* tool, and plausibly the machine
+  that mass-produces Aimee's records. No license declared.
 - Whether the existing Earthdata MCP server works determines if the librarian is a
   client or an integration (D3).
 - The librarian develops against Aimee's readiness records; hand-written fixtures
