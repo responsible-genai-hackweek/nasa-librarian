@@ -136,3 +136,86 @@ nothing about scale — the ranking is relevance, never fitness.
 
 **This is the demo.** Real, reproducible, no auth, one call, and it fails in exactly
 the way the project claims. Consider opening with it instead of a slide.
+---
+
+## Part two — live demo
+
+Joe walks through how MCP works, highlighting where the human sits in the loop. Then
+live coding, embedded in the session — slick.
+
+Runs `/mcp`, showing servers connected at once: Drata, Datadog, Gmail, Google Calendar,
+Earthmover, HubSpot, BetterStack, **earthdata**.
+
+### The demo, and the moment it turned
+
+Prompt: *"What repos do I have, and what is the best sea surface temperature one?"*
+
+Claude looks up his Arraylake orgs and repos, finds **195 repos across three orgs**,
+selects one as the best candidate, and explains why it chose it.
+
+**Joe disagreed with the pick.**
+
+The demo still worked — it showed the MCP server surfacing datasets *with context on
+each* that can be used to answer the prompt. But the headline is the disagreement.
+
+Follow-up prompt to steer it: *"I have a preference for observed SST (satellite or in
+situ obs). What do I have that fits that criteria?"* — and the dataset report changes.
+
+### Context-window discipline
+
+> Whatever you get back from the MCP is going into the context window — so don't ask
+> for 10 GB via MCP.
+
+For bulk data, use a different tool call (curl, direct S3) and keep MCP for metadata
+and control flow.
+
+## What this means for us
+
+### 1. An expert disagreeing with "best" is our thesis, demonstrated by someone else
+
+The person who built the platform, holding the domain expertise, asked for the *best*
+dataset and did not accept the answer. Not a strawman we constructed — the tool's own
+author, on his own data, in front of the room.
+
+Note this is the **repo** case, not even the harder Earth-science-fitness case. If
+"best" fails on 195 repos you own, it fails much harder on thousands of NASA
+collections you don't.
+
+Third corroboration, now from a different direction: the chart doesn't ask the
+question, NASA's MCP declines to answer it, and when an agent answers it anyway the
+expert disagrees.
+
+### 2. The fitness criterion arrived from the human, on the second prompt
+
+*"I have a preference for observed SST (satellite or in situ obs)"* is a fitness
+constraint — and Joe had to know to supply it. The agent never asked.
+
+**That is precisely step 2 of our sequence diagram.** Our contribution is not that the
+constraint can be applied; the demo shows it can. It is that the desk *elicits* it
+before answering, instead of requiring the user to already know which axis matters.
+Joe knew to say "observed, not model". A land manager will not know to say "30 m, not
+11 km" — that is the whole point of the reference interview.
+
+Worth adding to the gold set: an unrefined first prompt where the correct behaviour is
+a question, not a ranking.
+
+### 3. A context budget on the readiness record — a real design constraint
+
+Joe's 10 GB warning has a direct consequence: **the record must be small enough that
+several fit in context at once.** The librarian compares candidates, so it may hold
+five or ten records simultaneously while ranking.
+
+This corroborates from the NASA side too — that server's own instructions warn
+"NASA Earthdata metadata is extremely verbose. Unconstrained responses can quickly
+exhaust your context window," and give it a `fields` parameter and a default `limit`
+of 10 for exactly this reason.
+
+So: the readiness record is a **compact structured verdict, not a metadata dump**. If
+it grows to the size of a UMM-C record we have rebuilt the problem. Two implications
+for the schema — worth deciding early:
+
+- Keep the ranking-time fields tight; put bulky provenance behind a reference rather
+  than inline.
+- The `{value, source, confidence}` triple is already three times the size of a bare
+  value. It earns that on fitness fields where provenance decides trust. Consider
+  whether it earns it everywhere, or whether identity/access fields can stay bare.
