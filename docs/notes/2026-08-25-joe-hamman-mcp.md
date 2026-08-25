@@ -253,3 +253,55 @@ present, unnormalised, and null exactly where the fitness question is hardest. A
 agent working from CMR alone cannot learn that IMERG is too coarse for a county,
 because CMR does not say so. That is the readiness record's job, demonstrated in one
 call.
+---
+
+## Slides
+
+Stored at
+[slides/2026-08-25-joe-hamman-mcp-basics.md](../slides/2026-08-25-joe-hamman-mcp-basics.md).
+Source: <https://slides.earthmover.io/main/mcp-basics-hackweek/> — a Slidev SPA with no
+print or PDF route, so the text was extracted from the JS bundle. 33 slides in five
+parts: the problem MCP solves · how it works · unpacking calls · in practice · where it
+fits, plus extras.
+
+### Four things in the deck that bear on our design
+
+**1. Joe states the context cost as a design rule** (slide 14):
+
+> Tool descriptions **are** prompt engineering — the model knows nothing else, and
+> **pays for the text every turn**.
+
+And slide 31: *"more tools do not make a better agent. Each tool description fills
+context on every turn. Ten sharp tools beat sixty vague ones."* Our measured ~10,900
+tokens for NASA's seven tools is that rule with a number on it. Slide 27 adds
+Anthropic's finding that server-side response trimming costs about **⅓ the tokens**.
+
+**2. The readiness record is a `resource`, and the slot is empty.** Slide 13 defines
+the primitive:
+
+> A **resource** is a document that the server offers for reading: a file, a record, a
+> metadata page. A URI names it. **Nothing runs when you read it.** … The user or the
+> client picks it, not the model.
+
+That is exactly the shape of a Dataset Readiness Record — a per-dataset document, named
+by URI, inert on read. **NASA's `earthdata-mcp` exposes zero resources** (verified:
+`resources/list` returns empty). The protocol has a slot for what we are building and
+nobody has filled it. Worth deciding whether the record is served as an MCP resource
+rather than only as files in our repo — it would make it consumable by any agent, which
+is the D7 durability argument in a different form.
+
+**3. Joe's three neighbours frame where each collaborator's work lives** (slide 25):
+Context (`CLAUDE.md`, "how this project works") · **Skills** ("procedure — a repeatable
+method") · **MCP** ("capability — the agent must reach a system"). So Aimee's readiness
+assessment is a *skill* (procedure), catalog access is *MCP* (capability), and the
+record itself is *neither* — it is data, which is why it wants to be a resource.
+
+**4. Prompt injection is a named risk** (slide 32): *"the client puts tool results into
+context as text. A poisoned README becomes an instruction."* Relevant to the
+responsible-AI framing — if we propose that DAACs publish recipe assets that agents
+read, we are proposing a new injection surface. Worth a sentence in the convention (D7)
+about what a conformant `role: example` asset may and may not contain.
+
+Also worth stealing: the **MCP Inspector** debugging rule (slide 22) — *if the tool
+fails in the Inspector the fault is in your server; if it works in the Inspector but
+the agent calls it wrong, the fault is in your tool descriptions.*
