@@ -239,6 +239,88 @@ an MCP **resource** (`readiness://collection/{concept_id}`) for citation and bro
 because resources are user- and client-controlled. NASA's server exposes **neither** —
 no readiness primitive of any kind.
 
+### The reference desk — how the gap gets filled
+
+#### Three artifacts, not two
+
+GeoCroissant's *subject* is a dataset. The interview's output is about a **question**.
+Putting question-side facts into a GeoCroissant document asserts properties of the
+dataset that belong to the asker — a category error that would poison the cache, since
+the record is shared across users and the need is not.
+
+```
+   NEED STATEMENT                      READINESS RECORD
+   per query · ours                    per dataset · Aimee's · GeoCroissant
+   ─────────────────                   ────────────────────
+   unit of analysis                    geocr:spatialResolution
+   time window + cadence               quality_flag_convention
+   what "drying" means here            cautions[] · uncertainty
+   effect size · operational?          min_meaningful_area_km2
+            │                                    │
+            └────────────────┬───────────────────┘
+                             ▼
+                   COMPATIBILITY REPORT
+                   per query · chosen, rejected, and why
+```
+
+GeoCroissant is right for the readiness record, **wrong for the need statement**, and
+the compatibility report is a third small thing that cites both. That report is also the
+deliverable for the researcher persona — it is what goes in a methods section.
+
+#### The need statement — six slots
+
+| Slot | What it pins down |
+|---|---|
+| `unit_of_analysis` | parcel, field, county, watershed — the thing that must resolve |
+| `time_window` | the span a trend or comparison needs |
+| `cadence_required` | how often, set by the rate of the process |
+| `variable_meaning` | what the user's word denotes here — "drying" as soil, vegetation or rainfall |
+| `effect_size` | the change that would matter, which sets the detectability bar |
+| `latency_tolerance` | operational (needs recency) or retrospective |
+
+#### The interview is slot-filling, driven by disagreement
+
+Not "the agent interviews the user." Precisely:
+
+**Every input channel fills slots. The desk asks only about slots that are still empty
+*and* would change the answer.**
+
+That second clause is the mechanism. Given N candidates with known dataset-side
+operands and a partly-filled need statement, for each empty slot ask whether the
+candidate set changes across plausible values — then ask about the **highest-leverage
+slot first**, and stop when the answer is stable.
+
+For *is my county drying out*: candidates disagree wildly on spatial resolvability
+(30 m to 36 km), so **ask about unit of analysis first** — one question eliminates most
+of the 287. They barely disagree on latency, so don't ask. Two questions, not ten.
+
+**The refusal falls out for free.** If every candidate fails an axis regardless of the
+answer, don't ask — refuse and explain. That is the snow-observer case: the desk does
+not interview its way to a no, it detects that no answer helps.
+
+Implementable in a week over five datasets, and no incumbent does it — a ranking system
+has nothing to be uncertain *about*.
+
+#### Input channels — same slots, different fill rates
+
+| Channel | Fills | Persona |
+|---|---|---|
+| Question text + bbox | unit of analysis and time window, partially | everyone |
+| **A prototype notebook** | the densest channel — clipping to a shapefile reveals the unit of analysis, a resample call reveals cadence, the statistic reveals effect size. *Evidence of intent* rather than stated intent | researcher |
+| **Interview questions** | whatever the others left empty | the only channel for the land manager, who has no notebook |
+
+A notebook is a fast path, never a requirement.
+
+#### How the record attaches to the dataset
+
+Three stages, and GeoCroissant already supplies the hook:
+
+1. **This week** — sidecar files in this repo, keyed by `concept_id`. Unblocks everything today.
+2. **For the demo** — served from our MCP as `get_readiness(concept_id)`, consumable by any agent (D9).
+3. **The proposal** — the record travels *with* the collection. `geocr:recordEndpoint` is
+   defined as a URL pointing to a service where dataset metadata records can be queried
+   programmatically. That is the attachment point, already in Rajat's spec (D7, D8).
+
 ## Why the catalog channel, not the documentation channel
 An agent already knows a great deal about NASA data, absorbed in pretraining. That
 prior has two properties nobody chose:
