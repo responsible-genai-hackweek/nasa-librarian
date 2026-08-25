@@ -5,6 +5,14 @@
 - Read the 2026-08-24 architecture memo and reconciled `docs/` against it —
   `objective.md` rewritten from template placeholder, `decisions.md` and
   `progress.md` restored with real content.
+- Attended Joe Hamman (Earthmover) on MCP; notes in
+  [notes/2026-08-25-joe-hamman-mcp.md](notes/2026-08-25-joe-hamman-mcp.md).
+- Researched the Earthdata MCP landscape and probed the live NASA server. **D3
+  settled** — the librarian is a client of `nasa/earthdata-mcp`, not an integration.
+- **R1 answered for the load-bearing field.** Resolution is partly in CMR, as free
+  text in mixed units, and null for the one dataset that matters most.
+- Rewrote the gap statement in `objective.md` around a single verified case, and
+  re-baselined the evaluation tracks against the MCP-equipped agent.
 
 ### What I learned
 - The repo was a scaffold only: `src/`, `data/` and `outputs/` hold nothing but
@@ -12,6 +20,21 @@
   in git.
 - The shared link on the artifact serves collaborators a **pinned earlier version**,
   not the current one. Anyone working from that link may be a revision behind.
+- **The gap has a crisp statement.** The catalog describes what a dataset *is*;
+  fitness is a relation between a dataset and a question; nothing holds the
+  dataset-side facts needed to compute it. The record is the operand, the librarian
+  the operator — and the operand is missing, which is why it is the week's priority.
+- **Availability-refusal and fitness-refusal are different problems.** NASA solved the
+  first. Conflating them means claiming credit for finished work.
+- **The claim is fitness blindness, not popularity bias.** With an MCP in the loop the
+  agent queries the catalog rather than its pretraining, so the popularity argument no
+  longer describes the failure we can demonstrate. Sharper claim, better defended.
+- **Keenan's layer overlaps the incumbent most.** NASA's server already emits
+  `earthaccess` snippets with calibration parameters as comments. What is genuinely
+  absent is CI verification, recipes as collection assets, and co-registration.
+- **Scope absorption is the strategic risk.** That server was created in Nov 2025 and
+  is actively growing to absorb exactly this kind of guidance. Bet on artifacts a
+  system prompt cannot hold — the record schema and the STAC convention (D7).
 
 ### Next steps
 - [ ] Assign an owner for D1 (region, question, persona) — it gates fixtures, gold
