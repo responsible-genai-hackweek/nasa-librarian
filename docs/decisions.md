@@ -9,13 +9,74 @@ answer — the first three are gated on nothing and block everything.
 Status values: `open` · `leaning` · `decided` · `superseded`.
 When one is settled, move it down to **Decided** below with context and consequences.
 
+### At a glance
+
+| # | Question | Status | Needs |
+|---|---|---|---|
+| **D1** | Which region, question and persona? | **OPEN** | **an owner, today** |
+| D2 | Which providers may the librarian search? | leaning — three | confirm |
+| D3 | Existing Earthdata MCP server, or reimplement? | **settled** — be a client | confirm with Aimee |
+| D4 | Which role goes on stage? | leaning — open with the refusal | follows D1 |
+| D5 | What counts as success? | leaning — refusal accuracy | confirm |
+| D6 | Notebook the user runs, or executed result? | leaning — notebook, as checked policy | confirm |
+| D7 | Publish a recipe convention, or consume one? | leaning — draft it, demo one | scoped to a 1-page proposal |
+| D8 | Which vocabulary for the record? | leaning — GeoCroissant + extension | ask Rajat |
+| D9 | How does the librarian obtain a record? | leaning — tool for the loop, resource for citation | out of scope this week |
+| D10 | RAG over docs, or extraction into a schema? | leaning — both, split by job | confirm |
+| **R1** | Can fitness knowledge be extracted at all? | **unknown** | day-one probe, 3 datasets |
+| R2 | Scope absorption | open | posture, not a task |
+
+**Only D1 blocks work.** Everything else has a leaning that is safe to proceed on; a
+"confirm" needs sixty seconds in a room, not a discussion.
+
 ### Before anyone codes
 
 #### D1 — Which region, question and persona?
-**Status:** open · **needs an owner**
+**Status:** open · **needs an owner** · *a defensible default is proposed below*
 
 Fixtures, gold set and demo script all descend from this, and none can start without
 it. Owner should be whoever owns the science framing. Assign this first, not last.
+
+##### A default that can be adopted or rejected in five minutes
+
+**Boulder County, Colorado. Primary persona: the land manager. Refusal case: the snow
+observer.** Not an aesthetic choice — it is where the evidence already is:
+
+- The land-manager query is **already run and verified** against the live NASA MCP:
+  287 collections, top five at 9 / 9 / 9 / 3 / 36 km. The demo's opening beat exists.
+- **Four of the five records are already half-authored.** We have pulled UMM-C for
+  HLSL30 (30 m), SPL3SMP (36 km), MOD16A2 (500 m) and GPM_3IMERGHH (resolution block
+  absent). Day one starts from evidence, not setup.
+- **One region carries both personas.** The plains east of Boulder give the land manager
+  a real agricultural question; the Front Range west of it gives the snow observer a real
+  slope question — which is the case that must be *refused*, because operational snow
+  products are coarse. That is exactly the pairing D4 wants.
+- **The terrain does double duty.** Boulder County is half mountainous, which is where
+  SMAP retrieval degrades — so the *retrieval validity* axis has a real instance, not a
+  hypothetical one.
+- The memo's own recipe example is already written against this bounding box:
+  `(-105.30, 39.90, -105.10, 40.10)`.
+
+##### What would justify overriding it
+
+**Pick where the expert is, not where the evidence is, if they conflict.** The gold set
+needs correct answers authored by someone who knows the products well enough to be
+trusted as ground truth. If someone in the room knows a different region or product
+family far better, that beats Boulder — re-running the probes costs an hour, and
+authoring five records without real expertise costs the whole validation.
+
+##### Criteria for any alternative
+
+Whatever is chosen must satisfy all five, or the week's validation does not work:
+
+1. **Candidates genuinely disagree on an axis** — otherwise no interview question has
+   leverage and the disagreement-driven interview cannot be demonstrated.
+2. **A plausible-but-wrong option exists** — the trap. (Here: IMERG, which sounds right
+   and is 11 km.)
+3. **At least one question is genuinely unanswerable at the scale asked** — without this
+   there is nothing to score refusal accuracy against.
+4. **Records are cheap to author** — someone in the room must know these products.
+5. **It reuses evidence already gathered**, or budgets an hour to regather it.
 
 #### D2 — Which providers may the librarian search?
 **Status:** leaning — three
@@ -24,21 +85,6 @@ CMR-STAC is partitioned per DAAC; there is no global granule search, so the shel
 explicit list rather than a wildcard. Wide looks good on a slide and does not finish in
 a weekend.
 
-#### D3 — Existing Earthdata MCP server, or reimplement access?
-**Status:** effectively settled 2026-08-25 — **be a client of `nasa/earthdata-mcp`**
-
-Aimee's resources reference one. If it works, the librarian is a client rather than an
-integration. It removes plumbing, not judgement.
-
-Resolved by probing it live during Joe Hamman's MCP talk — see
-[notes/2026-08-25-joe-hamman-mcp.md](notes/2026-08-25-joe-hamman-mcp.md).
-`https://cmr.earthdata.nasa.gov/mcp/v1` is hosted by NASA, on streamable HTTP, pushed
-four days ago, exposing seven CMR tools — and **discovery needs no authentication**.
-Earthdata Login is required only for granule download. Two rival servers
-(datalayer, podaac) are four to five months stale.
-
-Confirm with Aimee that this is the server her resources point at, then treat it as
-settled. One caveat before we depend on it: **the repo declares no license.**
 
 ### Before the demo
 
@@ -209,7 +255,21 @@ Anything we build as *a smarter agent* is on a collision course; anything we bui
 
 ## Decided
 
-*(none yet — move entries here from Open decisions as they settle)*
+#### D3 — Existing Earthdata MCP server, or reimplement access?
+**Status:** effectively settled 2026-08-25 — **be a client of `nasa/earthdata-mcp`**
+
+Aimee's resources reference one. If it works, the librarian is a client rather than an
+integration. It removes plumbing, not judgement.
+
+Resolved by probing it live during Joe Hamman's MCP talk — see
+[notes/2026-08-25-joe-hamman-mcp.md](notes/2026-08-25-joe-hamman-mcp.md).
+`https://cmr.earthdata.nasa.gov/mcp/v1` is hosted by NASA, on streamable HTTP, pushed
+four days ago, exposing seven CMR tools — and **discovery needs no authentication**.
+Earthdata Login is required only for granule download. Two rival servers
+(datalayer, podaac) are four to five months stale.
+
+Confirm with Aimee that this is the server her resources point at, then treat it as
+settled. One caveat before we depend on it: **the repo declares no license.**
 
 ---
 
