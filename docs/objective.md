@@ -51,8 +51,9 @@ or flattened in transit. [design.md](design.md#the-failure-in-full) has the evid
 ### What this week unlocks
 
 The readiness record is the **operand**. The librarian is the **operator**. Without the
-operand there is nothing to compute on — which is why the week weights toward the
-record.
+operand there is nothing to compute on — but the operand is cheap to hand-author, and the
+operator is not. See [This week's scope](#this-weeks-scope): five records by hand, and the
+build time goes to the desk.
 
 Characterise even five datasets and the same query returns:
 
@@ -161,6 +162,7 @@ design and the corroborating evidence — lives in [design.md](design.md). It ex
 this week builds, deliberately.
 
 ## This week's scope
+<a id="this-weeks-scope"></a>
 
 **One persona, one region, five hand-authored records, and a desk that asks one good
 question and refuses when it should — measured against the same agent without it.**
