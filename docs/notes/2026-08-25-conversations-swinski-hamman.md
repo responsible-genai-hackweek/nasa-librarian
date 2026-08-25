@@ -284,3 +284,92 @@ entry.
 - **Every use entry carries a scale qualifier**, or it is not admissible to the desk.
   This is the rule that keeps a suggested use from becoming a recommendation.
 - Steal "query patterns that work well" as the presentation form for `cloud_ready`.
+
+---
+
+## All three marketplace pages, compared
+
+Jim pasted Cal-Adapt (WRF) and ARCO-OCEAN as well. Three datasets, **three different
+authors** — Earthmover themselves, Eagle Rock Analytics (a consultancy working for the
+California Energy Commission), and OGS (an Italian research institute). The variation
+between them is the finding.
+
+### Fitness statements are already being written — they just have no home
+
+They do not appear in the `Applications` block. They turn up wherever that page's author
+happened to put them:
+
+| Where it appeared | What it actually is | Our axis |
+|---|---|---|
+| Cal-Adapt → **Bias Correction** | "bias-corrected models… **most appropriate option for energy sector applications** and other uses requiring high fidelity to observed climate patterns" — with citations | `validated_uses[]`, conditioned on application class |
+| Cal-Adapt → **Data Availability matrix** | GCM × scenario × resolution grid of ✓ and —; only CESM2 has ssp245/ssp585, and not at 3 km | coverage / sampling geometry |
+| Cal-Adapt → a parenthetical **inside** a use case | "The 9 km (d02) resolution provides hourly temperature across the WECC region, **a capability unique to the WRF dataset**" | comparative fitness |
+| Cal-Adapt → prose after the use cases | "A key advantage of WRF over statistical downscaling… **dynamical consistency** — temperature is physically consistent with wind, humidity… unlike statistical downscaling where variables are downscaled independently" | **joint usability** — our axis, stated by a producer |
+| ARCO-OCEAN → **Chunking** | "works well for training ML models that read short time sequences. **It may be less optimal for workloads such as computing climatologies, especially over small spatial regions.** For this reason, dataset statistics… are provided separately" | `cautions[]` — an anti-recommendation *with a remedy* |
+| ARCO-OCEAN → Processing | 50 GLORYS12 vertical levels reduced to 10; sea cells valid when "at least half of the cell volume is filled with water" | known artifacts, never connected to any use |
+
+**The information exists. It has no home.** That is our missing / unstructured / lost
+analysis, demonstrated across three pages by three independent authors.
+
+### The variance is itself the argument for a schema
+
+| Page | Author | Fitness disclosure |
+|---|---|---|
+| ERA5 | Earthmover (curator) | almost none — 10 use cases, no scale, no cautions |
+| Cal-Adapt WRF | Eagle Rock Analytics (consultancy, regulator client) | extensive — recommendations, citations, an availability matrix, a human escalation path |
+| ARCO-OCEAN | OGS (research institute) | some, buried in a chunking discussion |
+
+Whether a user learns that a dataset is unfit for their question currently depends on
+**how conscientious that particular page's author felt.** That is the case for a schema in
+one sentence.
+
+### The headline: Cal-Adapt escalates the fitness question to a human, by email — twice
+
+> "**For guidance on model selection for your specific application**, consult the
+> Cal-Adapt data guidance or reach out to **support@cal-adapt.org**."
+
+> "For guidance on **choosing between WRF and LOCA2 for your application**, consult the
+> data guidance documentation or **contact the Cal-Adapt team** at support@cal-adapt.org."
+
+Both of those are the librarian's job, verbatim. *Which member for my application?* and
+*which dataset for my application?* are exactly the two questions the desk answers — and
+the most sophisticated dataset page any of us has seen answers them with a **mailto:**.
+
+This is our thesis found in the wild, with a support address attached. It is also the
+"written down once instead of re-delivered by email fifty times" line, no longer a
+metaphor.
+
+Note too that Cal-Adapt *does* have the knowledge written down — "Cal-Adapt Data
+Guidance" is a linked, separate document. The fitness layer exists as prose beside the
+metadata, unlinked from anything machine-readable. Same pattern as an ATBD.
+
+### The refined proposal to Joe
+
+Not "add a scale slot" — better than that:
+
+> **Authors are already writing fitness statements. They are just scattered across Bias
+> Correction, Chunking, Availability and stray parentheticals. Give them a home.**
+
+A `fitness` block beside `Applications`, with the shapes already observable in the wild:
+
+| Slot | Already appears as |
+|---|---|
+| `applies_at` | "most appropriate option for energy sector applications" |
+| `not_for` | "less optimal for computing climatologies over small spatial regions" |
+| `remedy` | "for this reason, dataset statistics are provided separately" |
+| `coverage_gaps` | the GCM × scenario × resolution availability matrix |
+| `joint_usability` | "dynamically consistent, unlike statistical downscaling" |
+| `escalation` | support@cal-adapt.org |
+
+Every row is lifted from a page that already exists. The proposal is not asking anyone to
+write anything new — it is asking them to put what they already write **in one labelled
+place**, so an agent can read it. That is a much easier sell than a new vocabulary, and
+Joe owns the surface it would live on.
+
+### One more thing worth stealing
+
+ARCO-OCEAN's caution comes **with a remedy**: the chunking is bad for climatologies, *so
+they precomputed the statistics separately.* A `cautions[]` entry that carries a
+`remedy` is far more useful than a bare warning — and it is what our compatibility report
+should aim to produce for a rejected dataset. Not just "SMAP cannot resolve your fields,"
+but "and here is what it *is* good for in your case."
