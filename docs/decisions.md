@@ -146,6 +146,14 @@ free text in mixed units (`"36.0x36.0 Kilometers"` vs `"30x30 Meters"`), and **`
 for GPM_3IMERGHH**, the one dataset our land-manager persona must be prevented from
 accepting.
 
+**Corrected 2026-08-25 (later).** The free text is the *MCP's* rendering. UMM-C carries
+resolution structured — `{"XDimension": 30, "YDimension": 30, "Unit": "Meters"}` — and
+also defines `Quality` and `Purpose`. So R1 splits into three jobs: **author** what is
+absent (IMERG has no resolution block at all), **normalise** what is prose (HLSL30's
+`Quality.Summary` states a ≥ 80°N caveat no agent can compare to a bbox), and
+**preserve** structure the agent layer currently flattens. See
+[notes/2026-08-25-nasa-ontology-slot.md](notes/2026-08-25-nasa-ontology-slot.md).
+
 **None of the fitness fields are available at all** — `quality_flag_convention`,
 `uncertainty`, `min_meaningful_area_km2`, `known_artifacts[]` and `cautions[]` remain
 ATBD/DAAC-guide territory. Test extraction against the fitness block only; don't spend

@@ -41,8 +41,11 @@ See [notes/2026-08-25-joe-hamman-mcp.md](notes/2026-08-25-joe-hamman-mcp.md).)*
 
 ### What is missing, precisely
 
-Resolution comes back as free text in mixed units — `"36.0x36.0 Kilometers"`,
-`"30x30 Meters"`. Parseable, not comparable.
+Resolution reaches the agent as free text in mixed units — `"36.0x36.0 Kilometers"`,
+`"30x30 Meters"`. Parseable, not comparable. **And that is a flattening, not the source
+of truth:** UMM-C actually carries it structured, as
+`{"XDimension": 30, "YDimension": 30, "Unit": "Meters"}`. The structure exists in the
+ontology, survives to the API, and is destroyed at the agent boundary.
 
 For **IMERG** — the classic wrong answer, the one that sounds right because it is named
 "precipitation" — it is **`null`**. Not wrong; absent. Its 0.1° grid appears only in the
@@ -54,8 +57,30 @@ exactly one such fact (HLS does not populate CMR's `cloud_cover`; use the Fmask 
 and hard-coded it into their MCP server's system prompt, for that one dataset.
 
 So the knowledge exists. It lives in ATBDs, DAAC guides, hand-written special cases in
-system prompts, and in people who have used a product for a decade. **It has no
-machine-readable home.**
+system prompts, and in people who have used a product for a decade.
+
+**And NASA's ontology already has slots for it** — see
+[notes/2026-08-25-nasa-ontology-slot.md](notes/2026-08-25-nasa-ontology-slot.md). UMM-C
+defines `Quality`, `Purpose` and a structured `ResolutionAndCoordinateSystem`; ISO
+19115, which UMM-C descends from, names the concept outright in
+`MD_Constraints.useLimitation` — *limitations on the "fitness of use" of the resource* —
+and `MD_Usage.userDeterminedLimitations`, *applications for which the resource is not
+suitable*.
+
+So the gap has **three failure modes, needing three different fixes**:
+
+| Failure | Example | Fix |
+|---|---|---|
+| **Missing** | IMERG has no `ResolutionAndCoordinateSystem` at all; SPL3SMP and MOD16A2 have no `Quality` | authoring |
+| **Unstructured** | HLSL30's `Quality.Summary` states a real spatial caveat (≥ 80°N) as prose no agent can compare to a bbox | normalisation |
+| **Lost in transit** | `{XDimension: 30, Unit: "Meters"}` reaches the agent as `"30x30 Meters"` | preservation |
+
+**We are not proposing a new field.** Three of our four fitness-adjacent fields map onto
+slots NASA already defined — `native_resolution_m` → `ResolutionAndCoordinateSystem`,
+`cautions[]` → `Quality` / ISO `userDeterminedLimitations`, `validated_uses[]` →
+`Purpose` / ISO `specificUsage`. Only `min_meaningful_area_km2`, `uncertainty` and
+`quality_flag_convention` are genuinely new, which makes the GeoCroissant extension a
+small well-motivated delta rather than a rival vocabulary.
 
 ### What this week unlocks
 
