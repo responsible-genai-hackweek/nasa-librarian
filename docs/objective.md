@@ -89,6 +89,7 @@ And it is not one comparison but about ten, failing independently:
 | Axis | Record supplies | Interview supplies | Failure it catches |
 |---|---|---|---|
 | **Can it see the thing?** | | | |
+| Sampling geometry | `structure` (gridded / swath / track / footprint) | is complete coverage required? | ICESat-2 resolves 17 m along-track and may never have crossed the parcel |
 | Spatial resolvability | `native_resolution_m`, `min_meaningful_area_km2` | unit of analysis | 9 km pixel vs 630 m parcel |
 | Temporal cadence | `temporal_cadence` | rate of the process | 8-day composite vs flash drought |
 | Record length | `time_start`, `time_end` | window the trend needs | 5-year mission vs 30-year question |
@@ -225,6 +226,25 @@ value exists.
 **And the trap one level up:** a vocabulary is not a corpus. `geocr:spatialResolution`
 being defined does not populate it — IMERG's `null` in CMR does not become 11 km
 because a field for it exists somewhere. Producing values is still the work.
+
+#### How records get produced — authored + generated → merged
+
+Borrowed from SlideRule's `sliderule-schema-server`, which solved this already:
+
+```
+authored/    (human-edited)  ─┐
+                              ├─▶  merged/  ─▶ published at a stable URL
+generated/   (tool-emitted)  ─┘
+```
+
+The split matches ours exactly. `geocr:spatialResolution` and the access block can be
+tool-generated from STAC/CMR; `min_meaningful_area_km2`, `quality_flag_convention`,
+`uncertainty` and `cautions[]` must be human-authored, because that is precisely the
+knowledge no catalog carries. `merged/` is committed so reviewers see the diff on every
+PR, and a verify step asserts it still matches what the generator would produce.
+
+This also serves the trust boundary: the human-authored tier is where untrusted ATBD
+text is turned into typed values under review, rather than reaching the agent as prose.
 
 #### Size, and how it is served
 
