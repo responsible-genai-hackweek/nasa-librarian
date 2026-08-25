@@ -15,7 +15,8 @@ Active — started 2026-08-24, target 2026-08-31
 ## Documentation
 | File | Purpose |
 |---|---|
-| [docs/objective.md](docs/objective.md) | Objectives, architecture, the Dataset Readiness Record, success criteria |
+| [docs/objective.md](docs/objective.md) | The gap, **this week's scope**, success criteria and how value is validated |
+| [docs/design.md](docs/design.md) | The full analysis — fitness anatomy, the Dataset Readiness Record, the reference-desk design |
 | [docs/decisions.md](docs/decisions.md) | Seven open decisions and one open risk, ordered by urgency |
 | [docs/progress.md](docs/progress.md) | Session log |
 
