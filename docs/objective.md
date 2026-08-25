@@ -331,6 +331,36 @@ has nothing to be uncertain *about*.
 
 A notebook is a fast path, never a requirement.
 
+#### Workflow design — three questions from J.P. Swinski
+
+| Question | Our answer |
+|---|---|
+| Is the executor an **agent or a human**? | **Human.** The notebook keeps a person in the loop by construction, not by prompt instruction (D6). |
+| Is the output **code or answers**? | **A decision with its justification, then code.** We never compute whether the county is drying out — we answer the meta-question: what could answer yours, and what couldn't. |
+| Is the goal **cost or robustness**? | **Robustness.** The failure we target is silent. Cost is what every incumbent already optimises. |
+
+**The answers are not independent.** Choosing robustness largely forces the other two: if
+the agent executes, the fitness judgement becomes unauditable; if the output is answers
+rather than code plus reasoning, the human cannot check the work. `{human executor,
+code + justification, robustness}` is a coherent cluster. The usual "AI for science" demo
+sits in the opposite cell — agent executes, emits answers, optimises cost — which is the
+configuration that maximises silent error.
+
+Three consequences:
+
+1. **We should expect to look worse on speed, and should say so first.** An interview
+   costs time; a refusal costs the user their preferred answer. Both are the product
+   working. The disagreement rule keeps this bounded — we ask only what changes the
+   answer. This also settles D5: refusal accuracy, never time-to-first-dataset.
+2. **The compatibility report is the universal output; the notebook is conditional.**
+   The report is always produced; the notebook only on a positive verdict. For the snow
+   observer there is no notebook at all. This makes refusal a first-class output rather
+   than an error path — which is what we are scoring.
+3. **The executor is constant; the reviewed artifact varies by persona.** The researcher
+   reviews the notebook and the selection record; the land manager reviews the
+   compatibility report and may never read Python. Human execution is about
+   accountability, not about everyone reading code.
+
 #### How the record attaches to the dataset
 
 Three stages, and GeoCroissant already supplies the hook:

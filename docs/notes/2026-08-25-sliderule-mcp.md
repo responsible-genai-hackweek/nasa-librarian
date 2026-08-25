@@ -103,3 +103,71 @@ carries `structure gridded | swath | point`. The field existed; the comparison d
   and `footprint`.
 - Ask J.P. and Carlos: did they consider serving fitness/suitability alongside the
   schema, and did the retrieval endpoint measurably improve tool-call correctness?
+
+---
+
+## J.P.'s three questions — a classification scheme for agentic workflows
+
+He poses three, and they shape the problem domain:
+
+1. **Is the executor an agent or a human?**
+2. **Is the targeted output code or answers?**
+3. **Is the goal to reduce cost or to improve robustness?**
+
+### Where we sit
+
+| Question | Our answer | Why |
+|---|---|---|
+| Executor | **Human** | D6 already leans this way. The notebook keeps a human in the loop *by construction*, not by prompt instruction. |
+| Output | **A decision with its justification, then code** | We never compute whether the county is drying out. We answer the *meta-question*: what could answer yours, and what couldn't. |
+| Goal | **Robustness** | The failure we target is silent. Cost is what every incumbent already optimises, and they are good at it. |
+
+### The answers are not independent
+
+That is the insight worth keeping. **Choosing robustness largely forces the other two.**
+
+- If the *agent* executes, nothing is reviewed, and the judgement that matters most —
+  the fitness call — becomes unauditable. Agent execution undermines robustness.
+- If the output is *answers* rather than code plus reasoning, the human cannot check the
+  work, and over-trust is the default. Answers undermine robustness.
+
+So `{human executor, code + justification, robustness}` is a **coherent cluster**, and
+mixing across clusters produces incoherent systems. The common "AI for science" demo
+sits in the opposite cell — agent executes, emits answers, optimises cost — which is
+exactly the configuration that maximises silent error.
+
+### Consequence 1 — we should expect to look worse on speed
+
+If the goal is robustness, the system must be **willing to cost more**. An interview
+costs the user time. A refusal costs them their preferred answer. Both are the product
+working correctly. Someone will benchmark this and "it asked me two questions" will read
+as a defect unless we frame it first.
+
+The reconciliation is the disagreement rule: we ask only what would change the answer,
+so we are robust without being gratuitously slow. Two questions, not ten.
+
+This also settles the metric argument in **D5** — refusal accuracy, never time-to-first-
+dataset.
+
+### Consequence 2 — the compatibility report is the universal output; the notebook is conditional
+
+A real clarification of the architecture. The memo's flow ends at a co-registered cube,
+which makes refusal look like a degenerate case where the pipeline fails to produce its
+output.
+
+Invert it. **The report is always produced. The notebook is produced only on a positive
+verdict.** For the snow observer there is no notebook at all — the deliverable is the
+refusal and what the closest available data cannot show. That makes refusal a
+first-class output rather than an error path, which is what D5 says we are scoring.
+
+### Consequence 3 — the executor is constant; the reviewed artifact varies by persona
+
+Separate *who runs it* from *what the human checks*.
+
+| Persona | Executes | Actually reviews |
+|---|---|---|
+| Researcher | the notebook | the notebook and the selection record — it goes in the methods section |
+| Land manager | the notebook | the **compatibility report**; they may not read Python at all |
+| Snow observer | nothing | the refusal and its reasoning |
+
+Human execution is about accountability, not about everyone reading code.
