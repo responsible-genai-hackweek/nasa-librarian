@@ -22,3 +22,10 @@ Carried over from the Joe session and our D3 research:
 
 ## Notes
 
+### Who
+Jason Gilman worked on **NASA CMR**. Helped build **ChatGSFC** — an agentic tool for
+NASA internal use, **9,000+ internal users**.
+
+### Adjacent effort
+**Element 84** is building a **general-purpose geospatial agentic tool**.
+
