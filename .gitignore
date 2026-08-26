@@ -32,9 +32,25 @@ data/*.xlsx
 !data/README.md
 !data/.gitkeep
 
-# Outputs (generated files)
-outputs/*
+# Outputs: prompts & documentation are tracked; runs are not
+outputs/runs/
+outputs/stage2-reports/
+outputs/stories/
+outputs/stage-1-prompts/
+outputs/stage-1-responses/
+outputs/.ipynb_checkpoints/
+!outputs/prompts/
+!outputs/VERSIONING.md
+!outputs/DIRECTORY-STRUCTURE.md
+!outputs/INDEX.md
+!outputs/README-stories.md
 !outputs/README.md
+!outputs/STRUCTURE.md
+!outputs/STAGE-1-QUICKSTART.md
+!outputs/stage-0-issue-body.md
+!outputs/stage-0-information-architecture.md
+!outputs/stage-1-prompt-template.md
+!outputs/story-index.csv
 !outputs/.gitkeep
 
 # Temporary files
