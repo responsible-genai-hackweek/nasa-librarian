@@ -33,11 +33,16 @@ data/*.xlsx
 !data/.gitkeep
 
 # Outputs: prompts & documentation are tracked; runs are not
-outputs/runs/
-outputs/stage2-reports/
-outputs/stories/
-outputs/stage-1-prompts/
-outputs/stage-1-responses/
+outputs/runs/*
+!outputs/runs/.gitkeep
+outputs/stage2-reports/*
+!outputs/stage2-reports/.gitkeep
+outputs/stories/*
+!outputs/stories/.gitkeep
+outputs/stage-1-prompts/*
+!outputs/stage-1-prompts/.gitkeep
+outputs/stage-1-responses/*
+!outputs/stage-1-responses/.gitkeep
 outputs/.ipynb_checkpoints/
 !outputs/prompts/
 !outputs/VERSIONING.md
