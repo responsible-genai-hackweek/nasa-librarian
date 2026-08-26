@@ -1,0 +1,196 @@
+{
+  "metadata": {
+    "stage": 2,
+    "story_id": "03",
+    "story_name": "What's in the Water? (Algal Blooms & Fjord Productivity)",
+    "prompt_version": "prompt-12-dataset-ranking/v1",
+    "model": "claude-opus-5",
+    "generated_at": "2026-08-26T22:40:00Z"
+  },
+  "specification": {
+    "unit_of_analysis": "Fjord or coastal embayment (10–100 km scale); bloom patch (1–10 km)",
+    "spatial_resolution_required_m": 300,
+    "time_window_years": 5,
+    "temporal_cadence": "2–5 days",
+    "latency_tolerance": "1–2 days",
+    "variables": ["chlorophyll_concentration", "suspended_sediment", "cdom", "harmful_algal_bloom_species"]
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "dataset_name": "Sentinel-2 Multispectral Coastal",
+      "collection_id": "COPERNICUS/S2_SR",
+      "resolution_m": 10,
+      "time_span_years": "2015–present",
+      "cadence": "5 days",
+      "latency_days": 1,
+      "quality_of_fit": "HIGH",
+      "confidence": 0.92,
+      "specification_fit": {
+        "resolution": "EXCELLENT (10 m << 300 m required)",
+        "time_span": "FITS (11+ years)",
+        "cadence": "FITS (5 days within 2–5 day requirement)",
+        "latency": "FITS (1 day << 1–2 day)",
+        "variables": "YES (multispectral; red-edge for pigments; blue-red for sediment/CDOM)"
+      },
+      "gotchas_avoided": [
+        "Red-edge band (705 nm): excellent for chlorophyll discrimination",
+        "10 m resolution resolves fjord-scale features (1–10 km blooms)",
+        "Multispectral (11 bands) allows pigment decomposition (chlor vs CDOM vs sediment)",
+        "Can separate bloom from natural sediment plume"
+      ],
+      "gotchas_hit": [
+        "Cloud cover in high-latitude maritime: 5-day composite may blur rapid bloom dynamics"
+      ],
+      "caveats": [
+        "Frequent cloud cover requires composite strategy (5–10 day stacks)",
+        "Cannot identify harmful algal bloom SPECIES from spectrum alone; requires in-situ confirmation",
+        "Glacial sediment plume can dominate over low-biomass bloom signal",
+        "Red-edge band excellent but still indirect proxy for chlorophyll"
+      ],
+      "validation_note": "Explicitly in Stage 0 'Would Work'; red-edge band is key advantage over older sensors",
+      "next_step": "Pair with in-situ sampling for species ID. Use spectral decomposition (IOP algorithms) to separate pigments."
+    },
+    {
+      "rank": 2,
+      "dataset_name": "Copernicus Sentinel-3 OLCI",
+      "collection_id": "COPERNICUS/S3_OL",
+      "resolution_m": 300,
+      "time_span_years": "2016–present",
+      "cadence": "daily",
+      "latency_days": 1,
+      "quality_of_fit": "HIGH",
+      "confidence": 0.88,
+      "specification_fit": {
+        "resolution": "FITS (300 m = requirement)",
+        "time_span": "FITS (10+ years)",
+        "cadence": "FITS (daily > 2–5 day requirement)",
+        "latency": "FITS (1 day = requirement)",
+        "variables": "YES (OLCI designed for coastal color science)"
+      },
+      "gotchas_avoided": [
+        "Purpose-built for coastal water color (OLCI = Ocean Land Colour Instrument)",
+        "Daily revisit catches rapid bloom onset/offset",
+        "Spectral bands optimized for chlorophyll, sediment, CDOM separation",
+        "Moderate resolution (300 m) ideal for fjord scale"
+      ],
+      "gotchas_hit": [
+        "Cloud cover still problematic for daily consistency",
+        "Slightly coarser than Sentinel-2 (300 m vs 10 m)"
+      ],
+      "caveats": [
+        "Cannot resolve individual bloom patches < 1 km (would need Sentinel-2 zoom)",
+        "Cannot identify HAB species from spectrum (in-situ required)",
+        "Glacial sediment can overwhelm bloom signal in sediment-rich fjords",
+        "Daily cadence great but must account for atmospheric correction uncertainty"
+      ],
+      "validation_note": "Explicitly in Stage 0 'Would Work'; designed for this science",
+      "next_step": "Use daily composites for trend; pair with higher-res Sentinel-2 when cloud-free for detailed analysis"
+    },
+    {
+      "rank": 3,
+      "dataset_name": "Landsat 8/9 Coastal/Aerosol Band",
+      "collection_id": "LANDSAT/LC09/C02/T1_L2",
+      "resolution_m": 30,
+      "time_span_years": "2013–present",
+      "cadence": "8 days",
+      "latency_days": 2,
+      "quality_of_fit": "MEDIUM",
+      "confidence": 0.70,
+      "specification_fit": {
+        "resolution": "EXCELLENT (30 m << 300 m)",
+        "time_span": "FITS (13+ years)",
+        "cadence": "MARGINAL (8 days > 2–5 day ideal)",
+        "latency": "MARGINAL (2 days > 1–2 day ideal)",
+        "variables": "PARTIAL (coastal band; green/red/NIR for vegetation index; lacks red-edge)"
+      },
+      "gotchas_avoided": [
+        "30 m resolution excellent for bloom patch detection",
+        "Long archive (2013–) supports trend analysis"
+      ],
+      "gotchas_hit": [
+        "No red-edge band (limitation vs Sentinel-2/OLCI)",
+        "8-day revisit gaps in active bloom season"
+      ],
+      "caveats": [
+        "Lacks red-edge band (705 nm): chlorophyll discrimination weaker than S-2",
+        "8-day revisit can miss bloom onset/decay dynamics",
+        "Lower spectral resolution for pigment decomposition",
+        "Coastal band not optimized for water color science (designed for aerosol correction)"
+      ],
+      "validation_note": "In Stage 0 'Would Work' but as secondary / backup, not primary",
+      "next_step": "Use as archive for climatology (10-year trend); prefer Sentinel-2 or OLCI for tactical bloom detection"
+    },
+    {
+      "rank": 4,
+      "dataset_name": "MODIS Aqua Ocean Color",
+      "collection_id": "MODIS/MYD19",
+      "resolution_m": 1000,
+      "time_span_years": "2002–present",
+      "cadence": "daily",
+      "latency_days": 1,
+      "quality_of_fit": "LOW",
+      "confidence": 0.45,
+      "specification_fit": {
+        "resolution": "FAILS (1000 m >> 300 m required)",
+        "time_span": "EXCELLENT (24+ years)",
+        "cadence": "FITS (daily)",
+        "latency": "FITS (1 day)",
+        "variables": "PARTIAL (chlorophyll only; not sediment or CDOM)"
+      },
+      "gotchas_avoided": [],
+      "gotchas_hit": [
+        "⚠️ RESOLUTION TRAP: User searches 'fjord algal bloom' → MODIS appears as daily global product",
+        "1 km pixel >> 1–10 km fjord features; coarseness destroys spatial detail",
+        "Cannot resolve bloom patches; only regional averaging"
+      ],
+      "caveats": [
+        "RESOLUTION FAILURE: 1000 m pixel >> fjord scale (10 km embayment = 10 pixels total)",
+        "Cannot detect individual blooms; measures regional average",
+        "Explicitly in Stage 0 'Wouldn't Work' for fjord-scale analysis",
+        "Only chlorophyll; lacks sediment and CDOM discrimination",
+        "Cloud cover gaps (daily nominal, not guaranteed every day)"
+      ],
+      "validation_note": "Exemplifies naive scale mistake: daily global coverage looks useful until you need fjord resolution",
+      "next_step": "DO NOT USE for fjord bloom detection. Use Sentinel-2 or OLCI instead."
+    }
+  ],
+  "recommendation": {
+    "approach": "Paired multi-scale strategy: (1) Sentinel-3 OLCI (300 m, daily) for operational bloom monitoring (alerts, early detection). (2) Sentinel-2 (10 m, 5-day) for detailed bloom characterization when cloud-free. (3) Regional ocean models for primary productivity context. This stacks operational cadence with analytical detail.",
+    "best_dataset_pair": "OLCI (operational) + Sentinel-2 (detailed)",
+    "refusals": [
+      "MODIS: 1 km resolution inadequate for fjord features; useless for bloom-scale analysis"
+    ],
+    "data_gaps": [
+      "HAB species identification: no satellite observable; requires molecular/microscopy ground truth",
+      "Subsurface phytoplankton distribution: satellite sees surface only; models or float casts needed",
+      "Nutrient state (N, P, Si): not retrievable from color alone; needs biogeochemistry models or in-situ"
+    ],
+    "confidence": "High (0.90). Top-ranked datasets align with Stage 0 predictions. Scale is adequate for fjord study.",
+    "stage_3_exploration_spec": {
+      "dataset_to_test": "Sentinel-3 OLCI + Sentinel-2",
+      "test_region": "Coastal fjord, high-latitude (e.g., Norwegian fjord or Alaska coastal region)",
+      "test_method": "Bloom detection pipeline: (1) Daily OLCI chlorophyll anomaly detection. (2) Cloud-free Sentinel-2 spectral decomposition (OC3-like algorithm for Chl, IOP model for sediment/CDOM). (3) Validation against in-situ samples.",
+      "exploratory_queries": [
+        "Does OLCI daily cadence catch bloom onset within 24 hours of peak?",
+        "Can spectral decomposition separate harmful vs. benign phytoplankton (proxy)?",
+        "How well does Sentinel-2 red-edge chlorophyll estimate match in-situ samples?",
+        "What is the glacier sediment plume signal vs. algal bloom; can we separate?",
+        "What is atmospheric correction uncertainty for fjord color in high-latitude conditions?"
+      ],
+      "success_criteria": [
+        "OLCI detects bloom initiation within 24 hours of in-situ Chl peak",
+        "Sentinel-2 retrieval RMS error < 20% vs. in-situ chlorophyll samples",
+        "Sediment/CDOM algorithm resolves glacier plume from bloom signal (R² > 0.8)",
+        "Spectral classification flags suspected HAB with > 80% agreement with species ID (when available)"
+      ],
+      "expected_gotchas": [
+        "Glacier sediment plume extremely bright; may saturate sensors or overwhelm bloom",
+        "Sediment plume and bloom can co-occur (glacial input drives productivity); hard to separate",
+        "Cloud cover frequency limits Sentinel-2 sampling despite 5-day nominal revisit",
+        "Atmospheric correction over sediment-rich coastal water introduces systematic bias",
+        "HAB species cannot be identified from spectrum alone; need microscopy"
+      ]
+    }
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "metadata": {
+    "stage": 2,
+    "story_id": "02",
+    "story_name": "North Slope Borough Search and Rescue",
+    "prompt_version": "prompt-12-dataset-ranking/v1",
+    "model": "claude-opus-5",
+    "generated_at": "2026-08-26T22:35:00Z"
+  },
+  "specification": {
+    "unit_of_analysis": "Coastal Utqiagvik region + immediate offshore (10–50 km)",
+    "spatial_resolution_required_m": 10000,
+    "time_window_years": 10,
+    "temporal_cadence": "daily",
+    "latency_tolerance": "< 6 hours (operational)",
+    "variables": ["sea_ice_motion", "sea_ice_concentration", "wind_speed", "sea_level_anomaly"]
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "dataset_name": "Sentinel-1 Sea Ice Motion (SAR)",
+      "collection_id": "COPERNICUS/S1_GRD_FLOAT",
+      "resolution_m": 10000,
+      "time_span_years": "2014–present",
+      "cadence": "12 days",
+      "latency_days": 3,
+      "quality_of_fit": "HIGH",
+      "confidence": 0.85,
+      "specification_fit": {
+        "resolution": "FITS (10 km scale match)",
+        "time_span": "FITS (12+ years)",
+        "cadence": "MARGINAL (12 days < daily ideal; but best available)",
+        "latency": "FITS (3 days << 6hr required) ⚠️ MARGINAL",
+        "variables": "YES (ice motion, concentration from SAR signature)"
+      },
+      "gotchas_avoided": [
+        "Measures ice MOTION (critical for SAR decisions), not just concentration",
+        "Radar penetrates cloud cover (Arctic advantage over optical)",
+        "Can distinguish ice edge position (important for coastal prediction)"
+      ],
+      "gotchas_hit": [
+        "Latency 3 days exceeds 6-hour operational requirement",
+        "12-day revisit less frequent than ideal for tactical decisions"
+      ],
+      "caveats": [
+        "LATENCY ISSUE: 3-day lag too slow for emergency SAR response",
+        "12-day revisit misses rapid ice dynamics (24-48 hour changes)",
+        "Requires SAR processing expertise; raw backscatter not operationally ready",
+        "Must pair with NWP forecast for tactical 6-hour prediction"
+      ],
+      "validation_note": "In Stage 0 'Would Work' BUT with latency caveat. Not suitable as sole data source for operational SAR.",
+      "next_step": "Use as strategic context (weekly ice trends), but pair with geostationary for tactical latency"
+    },
+    {
+      "rank": 2,
+      "dataset_name": "NOAA GFS Regional Weather Model (0.25° resolution)",
+      "collection_id": "NOAA/GFS",
+      "resolution_m": 25000,
+      "time_span_years": "reanalysis + forecast",
+      "cadence": "daily updates",
+      "latency_days": 0.25,
+      "quality_of_fit": "MEDIUM",
+      "confidence": 0.75,
+      "specification_fit": {
+        "resolution": "MARGINAL (25 km > 10 km required)",
+        "time_span": "FITS (decades reanalysis, 10-day forecast)",
+        "cadence": "FITS (daily, 4× daily updates)",
+        "latency": "FITS (6 hours <<< requirement)",
+        "variables": "PARTIAL (wind, pressure; no direct ice motion or sea level)"
+      },
+      "gotchas_avoided": [
+        "Real-time latency (6 hours): suitable for operational decisions",
+        "Wind forecast drives ice motion predictions"
+      ],
+      "gotchas_hit": [
+        "Resolution 25 km coarser than ideal for coastal jets/channels",
+        "Does not directly observe ice; depends on model coupling",
+        "Forecast skill drops rapidly beyond 3–5 days"
+      ],
+      "caveats": [
+        "Does NOT directly observe sea ice; requires ocean-atmosphere coupling",
+        "Coastal wind jets (critical for Utqiagvik) may be under-resolved at 25 km",
+        "Forecast uncertainty grows beyond 3–5 days (SAR decision window)",
+        "Must validate against satellite ice motion observations"
+      ],
+      "validation_note": "In Stage 0 'Would Work' for weather context; insufficient alone for ice motion prediction",
+      "next_step": "Use as forcing for tactical forecast, paired with geostationary satellite ice observations"
+    },
+    {
+      "rank": 3,
+      "dataset_name": "MODIS Ice Concentration (Polar-Orbiting)",
+      "collection_id": "MODIS/MOD29",
+      "resolution_m": 1000,
+      "time_span_years": "2000–present",
+      "cadence": "1–2 day",
+      "latency_days": 2,
+      "quality_of_fit": "MEDIUM",
+      "confidence": 0.60,
+      "specification_fit": {
+        "resolution": "FITS (1 km excellent)",
+        "time_span": "FITS (26+ years)",
+        "cadence": "MARGINAL (1–2 day < daily required)",
+        "latency": "FAILS (2 days > 6hr requirement)",
+        "variables": "PARTIAL (ice concentration only; no motion)"
+      },
+      "gotchas_avoided": [
+        "High resolution (1 km) shows coastal detail",
+        "Long archive supports climatology"
+      ],
+      "gotchas_hit": [
+        "⚠️ OPERATIONAL TRAP: 1-day latency looks fast until you need 6 hours",
+        "Polar-orbiter: only 1–2 passes/day; misses 22-hour gaps",
+        "Does NOT measure ice motion; only concentration"
+      ],
+      "caveats": [
+        "LATENCY FAILURE: 2-day latency unacceptable for SAR tactical decisions (need 6 hrs)",
+        "Concentration alone insufficient; need motion to predict where ice WILL BE",
+        "Cloud cover obscures view; gaps possible between passes",
+        "Explicitly in Stage 0 'Wouldn't Work' for operational use"
+      ],
+      "validation_note": "Good for retrospective analysis and climatology, NOT for operational SAR (latency too long)",
+      "next_step": "Use only for historical context. For operational decisions, need geostationary or NWP forecast."
+    }
+  ],
+  "recommendation": {
+    "approach": "HYBRID: (1) NOAA GFS regional model for 6-hour forecast skill window (operational). (2) Geostationary satellite imagery (GOES/HIMAWARI) for continuous ice-edge tracking (real-time). (3) Sentinel-1 SAR for strategic weekly ice-motion context. This stacks operational forecast with satellite observation.",
+    "best_dataset": "GFS forecast + geostationary satellite (not in earthdata-mcp; external)",
+    "operational_requirement": "⚠️ CRITICAL: Polar-orbiting satellites (Sentinel-1, MODIS) have 2–3 day latency. SAR needs 6-hour forecast horizon. earthdata-mcp datasets alone INSUFFICIENT for operational SAR decisions.",
+    "refusals": [
+      "MODIS ice products unsuitable: 2-day latency exceeds 6-hour requirement",
+      "Sentinel-1 as sole source: 12-day revisit + 3-day latency misses tactical window"
+    ],
+    "data_gaps": [
+      "Geostationary satellite ice-edge tracking: NOAA GOES or Japan's HIMAWARI (not in earthdata-mcp)",
+      "Real-time ocean inundation model: requires coupled forecast system, not satellite-only",
+      "Coastal jet forecast skill: GFS 25 km may miss mesoscale channeling"
+    ],
+    "confidence": "MEDIUM (0.65). earthdata-mcp datasets provide strategic context but NOT operational SAR response data. Real-time requirement gates performance.",
+    "stage_3_exploration_spec": {
+      "dataset_to_test": "NOAA GFS + Sentinel-1 SAR (hybrid)",
+      "test_region": "Utqiagvik coast, Beaufort Sea (bbox: -157.8 to -156.2°W, 71.0 to 71.3°N)",
+      "test_method": "Tactical forecast test: use GFS wind forecast to predict ice motion; validate with Sentinel-1 SAR observations (weekly)",
+      "exploratory_queries": [
+        "Does GFS 6-hour wind forecast skill translate to ice motion prediction?",
+        "What is coastal wind jet bias in 25 km GFS over Beaufort Sea?",
+        "Can Sentinel-1 12-day observation validate GFS forecast drift?",
+        "What is SAR processing latency in operational pipeline (3 days → ?? hours)?"
+      ],
+      "success_criteria": [
+        "GFS forecast skill ≥ 80% for wind speed (vs ground truth or reanalysis)",
+        "Wind forecast translates to ice position accuracy ±10 km at 6-hour horizon",
+        "Sentinel-1 observations consistent with GFS-predicted drift (when available)",
+        "Latency pathway identified to meet 6-hour requirement"
+      ],
+      "expected_gotchas": [
+        "Coastal jets highly sensitive to topography; 25 km model may underresolve",
+        "Sea-ice-wind coupling nonlinear; forecast drift can accelerate",
+        "Sentinel-1 12-day gap makes validation difficult; need supplementary obs",
+        "Latency chain (acquisition → processing → delivery) likely > 6 hours for SAR urgency"
+      ]
+    }
+  }
+}

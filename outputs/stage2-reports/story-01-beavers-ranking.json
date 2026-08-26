@@ -1,0 +1,155 @@
+{
+  "metadata": {
+    "stage": 2,
+    "story_id": "01",
+    "story_name": "Beavers in the Arctic",
+    "prompt_version": "prompt-12-dataset-ranking/v1",
+    "model": "claude-opus-5",
+    "generated_at": "2026-08-26T22:30:00Z"
+  },
+  "specification": {
+    "unit_of_analysis": "100–1000 km² subarctic region; sub-region patches 1–10 km²",
+    "spatial_resolution_required_m": 30,
+    "time_window_years": 10,
+    "temporal_cadence": "annual",
+    "latency_tolerance": "weeks OK",
+    "variables": ["vegetation_index", "subsidence", "ground_temperature"]
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "dataset_name": "Landsat 8/9 Surface Reflectance",
+      "collection_id": "LANDSAT/LC09/C02/T1_L2",
+      "resolution_m": 30,
+      "time_span_years": "2013–present",
+      "cadence": "8 days",
+      "latency_days": 14,
+      "quality_of_fit": "HIGH",
+      "confidence": 0.95,
+      "specification_fit": {
+        "resolution": "FITS (30 m = required)",
+        "time_span": "FITS (11+ years)",
+        "cadence": "FITS (8 days > annual)",
+        "latency": "FITS (2 weeks acceptable)",
+        "variables": "PARTIAL (vegetation; no subsidence/temp)"
+      },
+      "gotchas_avoided": [
+        "Resolves patches (30 m pixels cover ~1 km² → detects multi-pixel dams)",
+        "10+ year archive covers retrospective window",
+        "NDVI directly measures vegetation change from beaver flooding",
+        "Avoids 'temperature → air temp' trap (this is reflectance)"
+      ],
+      "gotchas_hit": [],
+      "caveats": [
+        "Does NOT measure subsidence or ground temperature directly",
+        "Requires pairing with Sentinel-1 InSAR for subsidence",
+        "Arctic cloud cover requires composite strategy (8-day to monthly)",
+        "Winter data (snow) not useful; active season June–Sept only"
+      ],
+      "validation_note": "Explicitly listed in Stage 0 'Would Work'; ranked as top choice",
+      "next_step": "Pair with Sentinel-1 (rank 2) for subsidence; use regional models for ground temp"
+    },
+    {
+      "rank": 2,
+      "dataset_name": "Sentinel-1 SAR (InSAR Subsidence)",
+      "collection_id": "COPERNICUS/S1_GRD_FLOAT",
+      "resolution_m": 10,
+      "time_span_years": "2014–present",
+      "cadence": "12 days",
+      "latency_days": 5,
+      "quality_of_fit": "HIGH",
+      "confidence": 0.90,
+      "specification_fit": {
+        "resolution": "FITS (10 m < 30 m required)",
+        "time_span": "FITS (12+ years)",
+        "cadence": "FITS (12 days > annual)",
+        "latency": "FITS (5 days << weeks)",
+        "variables": "YES (subsidence via InSAR)"
+      },
+      "gotchas_avoided": [
+        "Radar penetrates clouds (Arctic advantage over optical)",
+        "InSAR directly measures vertical displacement (subsidence)",
+        "10 m resolution better than required",
+        "Avoids 'water from organic soil' confusion (multi-year stacking resolves)"
+      ],
+      "gotchas_hit": [
+        "Sparse Arctic coverage; not all regions have coherence history",
+        "Requires multi-year coherent stacking (technical complexity)"
+      ],
+      "caveats": [
+        "Does NOT measure vegetation or ground temperature",
+        "Requires specialized InSAR processing (Persistent Scatterer or SBAS)",
+        "Coherence loss over water/vegetation; seasonal decorrelation",
+        "Must be combined with Landsat (rank 1) for vegetation picture"
+      ],
+      "validation_note": "Explicitly listed in Stage 0 'Would Work' for subsidence measurement",
+      "next_step": "Use with Landsat for complementary vegetation + subsidence view"
+    },
+    {
+      "rank": 3,
+      "dataset_name": "SMAP Level 3 Soil Moisture",
+      "collection_id": "SMAP/SPL3SMP_E",
+      "resolution_m": 9000,
+      "time_span_years": "2015–present",
+      "cadence": "2–3 days",
+      "latency_days": 21,
+      "quality_of_fit": "LOW",
+      "confidence": 0.10,
+      "specification_fit": {
+        "resolution": "FAILS (9000 m >> 30 m required)",
+        "time_span": "FITS (11+ years)",
+        "cadence": "FITS (2–3 days > annual)",
+        "latency": "MARGINAL (3 weeks OK but not ideal)",
+        "variables": "MISMATCH (soil moisture ≠ permafrost state)"
+      },
+      "gotchas_avoided": [],
+      "gotchas_hit": [
+        "⚠️ NAIVE-PICKER TRAP: Keyword search 'permafrost + soil moisture' → SMAP ranks high on relevance",
+        "9 km pixel >> 630 m parcel (100× area). Cannot resolve beaver-dam patches.",
+        "User doesn't realize they're looking at regional average, not their question",
+        "Explicitly listed in Stage 0 'Wouldn't Work'"
+      ],
+      "caveats": [
+        "CRITICAL: Resolution failure. North Slope Borough is 1–2 SMAP pixels total.",
+        "Beaver dam impact is 1–10 km² patch; SMAP pixel is 81 km². Cannot detect localized change.",
+        "Soil moisture is proxy for permafrost, not direct measurement",
+        "Regional averaging destroys feature detection"
+      ],
+      "validation_note": "Exemplifies the 'naive-picker trap': high relevance score, wrong scale entirely",
+      "next_step": "DO NOT USE for this question. Use Landsat + Sentinel-1 instead."
+    }
+  ],
+  "recommendation": {
+    "approach": "Multi-layer strategy: (1) Landsat vegetation time series (NDVI 2013–2026) for beaver-dam detection. (2) Sentinel-1 InSAR stack (2014–2026) for subsidence measurement. (3) Regional permafrost models (NSIDC, UiO) for ground temperature. This gives full picture of beaver-driven permafrost changes.",
+    "best_dataset_pair": "Landsat + Sentinel-1",
+    "refusals": [],
+    "data_gaps": [
+      "Ground temperature: Satellite cannot measure directly. Requires NSIDC ground-temp models or in-situ permafrost stations.",
+      "Ice richness (pore-space ice): No satellite observable. Only cores/boreholes access this."
+    ],
+    "confidence": "High (0.92). Top candidates align with Stage 0 'Would Work' predictions. SMAP correctly identified as naive trap despite keyword relevance.",
+    "stage_3_exploration_spec": {
+      "dataset_to_test": "Landsat 8/9 + Sentinel-1",
+      "test_region": "North Slope Borough, Alaska (bbox: -157 to -156.5°W, 68 to 68.5°N)",
+      "test_method": "Time series analysis 2015–2026. NDVI anomaly detection for vegetation change; InSAR subsidence stacking.",
+      "exploratory_queries": [
+        "How does Landsat NDVI change correlate with known beaver activity (2015–2020)?",
+        "Can we detect vegetation signature of beaver dams (flooding + shrub expansion)?",
+        "Does Sentinel-1 InSAR show subsidence in active beaver regions?",
+        "What is the signal-to-noise ratio (subsidence vs. seasonal/thermal noise)?"
+      ],
+      "success_criteria": [
+        "NDVI time series shows detectable change (Δ ≥ 0.1) in beaver-active areas",
+        "InSAR stack coherence ≥ 0.6 over 5+ years in permafrost regions",
+        "Subsidence signal ≥ 5 mm/year emerges above thermal/seasonal noise",
+        "Change detection matches ground-truth beaver sightings (if available)"
+      ],
+      "expected_gotchas": [
+        "Arctic cloud cover (need composite strategy, 4–8 week windows)",
+        "Winter data useless (snow masking); June–September only",
+        "InSAR coherence loss over water/wet tundra in melt season",
+        "Permafrost creep (natural subsidence) as noise; need multi-year stack to separate beaver-driven change"
+      ]
+    }
+  }
+}

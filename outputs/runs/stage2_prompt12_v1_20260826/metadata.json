@@ -1,0 +1,14 @@
+{
+  "stage": 2,
+  "prompt_version": "prompt-12-dataset-ranking/v1",
+  "model": "claude-opus-5",
+  "generated_at": "2026-08-26T22:30:00Z",
+  "model_settings": {
+    "temperature": 0.7,
+    "max_tokens": 8000
+  },
+  "input_stage": 1,
+  "input_prompt_version": "prompt-01-enrichment/v1",
+  "input_run_dir": "stage1_prompt01_v1_20260826",
+  "notes": "Pilot run: Stories 01, 02, 03 (Beavers, SAR, Algal Blooms). Seeding the pipeline with example Stage 2 outputs."
+}
