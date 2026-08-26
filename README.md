@@ -1,11 +1,9 @@
 # nasa-librarian
 
-*A reference desk for NASA Earth data.* It interviews you, finds what fits, hands you
-code that runs — and says plainly when nothing in the holdings answers your question at
-the scale asked.
+*A librarian agent for NASA Earth data.* The agent uses earthdata_mcp and earthaccess to help users find, access, and analyze NASA data more effectively. 
 
 Started at the Responsible Gen-AI for NASA Earthdata hackweek, UW eScience Institute,
-Seattle, August 2026. Context: 2i2c.
+Seattle, August 2026. 
 
 ---
 
