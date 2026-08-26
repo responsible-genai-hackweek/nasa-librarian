@@ -1,0 +1,12 @@
+story_id,name,region,persona,status,stage_0_complete,stage_1_ready,stage_1_response_received,stage_1_passed,stage_2_ready,blockers,notes
+01,Beavers in the Arctic,North Slope Borough,Infectious disease researcher / public health official,enriched,true,true,false,,,Strong permafrost narrative; clear trap on air temp vs ground temp
+02,North Slope Borough SAR,Utqiagvik / coastal Alaska,Search and Rescue manager,enriched,true,true,false,,,Operational dataset (< 6hr latency); challenging but well-scoped
+03,What's in the Water? (Algal Blooms),Fjords / coastal Arctic,Fisheries manager / oceanographer,enriched,true,true,false,,,Spectral decomposition challenge; good for validating multispectral capability
+04,Permafrost Subsidence,Regional Arctic,Geotechnical engineer,enriched,true,true,false,,,InSAR stack requirement; sparse Arctic coverage is real constraint
+05,Rusting Rivers,Mining-affected streams (Alaska/Arctic),Environmental scientist,enriched,true,true,false,,,Small-scale feature; satellite resolution marginal; drone alternative exists
+06,Are the Trees Alive?,Boreal forest,Forest ecologist,enriched,true,true,false,,,Phenology confusion trap; Sentinel-2 vs Landsat trade-off
+07,Glaciohydrology,Mountain glacier / hydropower,Utility operator,enriched,true,true,false,,,Firn/ice spectral confusion; operational use case
+08,Volcanic Ash,Active volcanic region,Air traffic controller,enriched,true,true,false,,,Geostationary + thermal required; hardest latency requirement (30 min)
+09,Bridge Collapse Risk,Urban / fault zone,Civil engineer,enriched,true,true,false,,,Scale trap dominant; satellite unlikely to work; mentions GPS/ground sensors
+10,LA Olympics Multi-Hazard,Los Angeles,Urban planner / emergency manager,enriched,true,true,false,,,Four sub-needs (heat/AQI/seismic/fire); most complex; good for demonstrating multi-axis reasoning
+11,DC Metro Rail Thermal Expansion,Washington DC / transit corridor,Rail engineer,enriched,true,true,false,,,Scale trap dominant; ground sensors + modeling required; satellite won't work
