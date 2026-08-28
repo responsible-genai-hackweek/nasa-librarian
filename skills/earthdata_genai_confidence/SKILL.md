@@ -9,14 +9,21 @@
 ## Overview
 
 **What This Skill Does:**
-The EarthAccess GenAI Confidence Assessment Skill provides universal probabilistic confidence assessment for earth science data selection and evaluation. It evaluates any earth science dataset against a 10-dimensional scoring space, decomposing uncertainty into aleatoric (irreducible noise) and epistemic (reducible knowledge gaps) components, then generates probabilistic outputs indicating P(confidence), P(uncertainty), and P(risk). The skill operates in three modes: **Fast** (500ms single-pass for rapid decisions), **Robust** (7.5s multi-variant ensemble with brittleness detection), and **A/B Test** (2s response quality evaluation with standardized rubric). All assessments are grounded in **NIST AI Risk Management Framework (AI RMF)** trustworthiness principles across 6 dimensions (explainability, robustness, calibration, uncertainty quantification, fairness, repeatability) combined with **Croissant RAI specification** (7 dimensions for responsible AI: data lifecycle, labeling, participation, safety/fairness, traceability, compliance, inclusion) to ensure assessments are honest about limitations, bias-aware, and traceable.
+The EarthAccess GenAI Confidence Assessment Skill assesses the confidence of AI-generated responses about earth science datasets. Given a user query, the skill:
+1. **Generates** a dataset recommendation response using an LLM
+2. **Analyzes** that response against a 10-dimensional scoring space
+3. **Scores** the response's trustworthiness, decomposing uncertainty into aleatoric (irreducible noise) and epistemic (reducible knowledge gaps) components
+4. **Returns** probabilistic outputs: P(confidence), P(uncertainty), P(risk), failure modes, and actionable recommendations
+
+The skill operates in three modes: **Fast** (500ms single-pass generation + assessment), **Robust** (7.5s with 15-variant ensemble for brittleness detection), and **A/B Test** (2s comparison of two generated responses). All assessments are grounded in **NIST AI Risk Management Framework (AI RMF)** trustworthiness principles (explainability, robustness, calibration, uncertainty quantification, fairness, repeatability) combined with **Croissant RAI specification** to ensure responses are honest about limitations, bias-aware, and traceable.
 
 **Key Capabilities:**
-- Works across 15+ earth science domains (proven on 179 queries, 100% success rate)
-- Generates Bayesian credible intervals (95% posterior probability bounds, not frequentist)
-- Detects brittleness via 15-variant ensemble (prompt-wording sensitivity)
-- Evaluates model recommendations objectively via A/B testing (4-criterion rubric)
-- Integrated responsible AI assessment (NIST AI RMF + Croissant RAI compliance)
+- **Generates + Assesses**: Produces dataset recommendations and evaluates their own confidence
+- **Works across 15+ earth science domains** (validated on 179 test queries, 100% success rate)
+- **Generates Bayesian credible intervals** (95% posterior probability bounds, not frequentist)
+- **Detects brittleness** via 15-variant ensemble (tests prompt-wording sensitivity of generated response)
+- **Compares responses** objectively via A/B testing (4-criterion rubric: thematic, spatial, temporal, access)
+- **Integrated responsible AI assessment** (NIST AI RMF + Croissant RAI compliance)
 
 ---
 
@@ -72,70 +79,69 @@ The EarthAccess GenAI Confidence Assessment Skill provides universal probabilist
 
 ## Inputs
 
-### Required Parameters
+### Required Parameters (Fast & Robust Modes)
 
 | Parameter | Type | Description | Examples |
 |-----------|------|-------------|----------|
-| `application` | string | Earth science application | `flood_mapping`, `drought_monitoring`, `biomass_estimation` |
-| `dataset_name` | string | Satellite dataset or instrument | `Sentinel-2`, `NISAR_GCOV`, `MODIS_NDVI` |
-| `region` | string | Geographic region | `mozambique`, `amazon`, `global`, `sahel` |
+| `query` | string | Natural language question about earth science data | "What satellite data can I use to map flood extent in Mozambique within 24 hours?" |
 
 ### Optional Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `decision_timeline_hours` | number | 168 | Hours available for decision |
-| `coverage_pct` | number | 100 | Estimated spatial/temporal coverage (0-100) |
-| `mode` | string | `fast` | Operational mode: `fast` (500ms), `robust` (7.5s), or `ab-test` (A/B evaluation) |
-| `description` | string | — | Natural language description of query |
+| `mode` | string | `fast` | Operational mode: `fast` (500ms), `robust` (7.5s), or `ab-test` (2s) |
 
 ### A/B Testing Mode Parameters (mode="ab-test")
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `prompt` | string | Yes | Original user prompt for NASA dataset recommendation |
-| `response_a` | string | Yes | First model response to evaluate |
-| `response_b` | string | Yes | Second model response to evaluate |
+| `query` | string | Yes | Original user query about earth science data |
+| `response_a` | string | Yes | First AI-generated response to evaluate |
+| `response_b` | string | Yes | Second AI-generated response to evaluate |
 | `output_file` | string | Yes | Path to save YAML evaluation results |
 | `evaluator_notes` | string | No | Additional context for evaluation |
 
 ### Input Example (Fast Mode)
 ```json
 {
-  "application": "flood_mapping",
-  "dataset_name": "Sentinel-2",
-  "region": "mozambique",
-  "decision_timeline_hours": 24,
-  "coverage_pct": 85,
-  "mode": "fast",
-  "description": "Rapid flood detection for emergency response"
+  "query": "What satellite data can I use to map flood extent in Mozambique within 24 hours?",
+  "mode": "fast"
 }
 ```
+
+**Workflow:**
+1. Skill generates a response using LLM
+2. Skill assesses that response's confidence
+3. Returns P(confidence), P(risk), failure modes, trustworthiness
 
 ### Input Example (Robust Mode)
 ```json
 {
-  "application": "flood_mapping",
-  "dataset_name": "Sentinel-2",
-  "region": "mozambique",
-  "decision_timeline_hours": 24,
-  "coverage_pct": 85,
-  "mode": "robust",
-  "description": "Operational deployment requiring robustness verification"
+  "query": "What satellite data can I use to map flood extent in Mozambique within 24 hours?",
+  "mode": "robust"
 }
 ```
+
+**Workflow:**
+1. Skill generates a response using LLM
+2. Skill runs 15-variant assessment (testing brittleness & robustness)
+3. Returns ensemble confidence, robustness score, brittleness indicators
 
 ### Input Example (A/B Test Mode)
 ```json
 {
   "mode": "ab-test",
-  "prompt": "What satellite data can I use to map flood extent in Mozambique within 24 hours?",
+  "query": "What satellite data can I use to map flood extent in Mozambique within 24 hours?",
   "response_a": "Sentinel-2 provides 10m resolution multispectral imagery with 5-day revisit. Use Band 3 (Green) and Band 8 (NIR) to compute NDWI for water detection. Available via AWS or USGS Earth Explorer.",
   "response_b": "MODIS imagery at 250m resolution with daily coverage is ideal for rapid assessment. The Normalized Difference Water Index (NDWI) from MODIS bands 2 and 7 can detect inundation. Access via LAADS or AppEEARS.",
-  "output_file": "/results/flood_response_evaluation.yaml",
-  "evaluator_notes": "Comparing fast-response (MODIS) vs high-detail (Sentinel-2) recommendations for emergency flood mapping"
+  "output_file": "/results/flood_response_evaluation.yaml"
 }
 ```
+
+**Workflow:**
+1. User provides two different generated responses to compare
+2. Skill evaluates both against 4-criterion rubric
+3. Returns comparative scores, trade-off analysis, recommendation
 
 ---
 
@@ -148,6 +154,9 @@ The EarthAccess GenAI Confidence Assessment Skill provides universal probabilist
   "query_id": "string",
   "mode_used": "fast|robust",
   "timestamp": "ISO 8601",
+  
+  "generated_response": "string (the AI-generated dataset recommendation)",
+  
   "assessment": {
     "probabilistic": {
       "p_high_confidence": 0.0-1.0,
@@ -162,6 +171,14 @@ The EarthAccess GenAI Confidence Assessment Skill provides universal probabilist
       "lower_bound": 0.0-1.0,
       "upper_bound": 0.0-1.0
     },
+    "failure_modes": [
+      {
+        "mode": "TEMPORAL|COVERAGE|SEMANTIC|...",
+        "severity": "LOW|MEDIUM|HIGH|CRITICAL",
+        "risk_probability": 0.0-1.0,
+        "evidence": "string"
+      }
+    ],
     "croissant_rai": {
       "data_lifecycle": 0-100,
       "data_labeling": 0-100,
@@ -172,9 +189,22 @@ The EarthAccess GenAI Confidence Assessment Skill provides universal probabilist
       "inclusion": 0-100
     },
     "trustworthiness_score": 0-100,
-    "primary_failure_mode": "SEMANTIC|COVERAGE|TEMPORAL|CAPABILITY|ACCESSIBILITY|QUALITY|INTEGRATION"
+    "nist_ai_rmf": {
+      "explainability": 0-100,
+      "robustness": 0-100,
+      "calibration": 0-100,
+      "uncertainty_quantification": 0-100,
+      "fairness": 0-100,
+      "repeatability": 0-100
+    }
   },
-  "recommendation": "string",
+  
+  "actionable_insights": {
+    "what_worked": "string (strengths of the recommendation)",
+    "what_could_fail": "string (main risks and limitations)",
+    "alternative_consideration": "string (suggested alternatives or caveats)"
+  },
+  
   "confidence_level": "VERY LOW|LOW|MODERATE|HIGH|VERY HIGH"
 }
 ```
@@ -186,34 +216,65 @@ The EarthAccess GenAI Confidence Assessment Skill provides universal probabilist
   "query_id": "query_fast_000042",
   "mode_used": "fast",
   "timestamp": "2026-08-27T15:30:00Z",
+  "user_query": "What satellite data can I use to map flood extent in Mozambique within 24 hours?",
+  
+  "generated_response": "For rapid flood mapping in Mozambique within 24 hours, I recommend Sentinel-1 SAR imagery. SAR is cloud-insensitive, providing reliable observations even during heavy monsoon rains. Use the VV and VH polarizations to compute the Radar Vegetation Index (RVI) or coherence change detection to identify flooded areas. Data is freely available via Copernicus SciHub with 12-day revisit (descending), enabling rapid deployment within 24h if a recent acquisition exists. Fall back to MODIS if no recent Sentinel-1 pass available—daily revisit but 250m resolution may miss small flood features.",
+  
   "assessment": {
     "probabilistic": {
-      "p_high_confidence": 0.58,
-      "p_uncertain": 0.16,
-      "p_risk": 0.26
+      "p_high_confidence": 0.62,
+      "p_uncertain": 0.18,
+      "p_risk": 0.20
     },
     "uncertainty": {
-      "aleatoric_uncertainty": 14,
-      "epistemic_uncertainty": 18
+      "aleatoric_uncertainty": 12,
+      "epistemic_uncertainty": 16
     },
     "credible_interval": {
-      "lower_bound": 0.42,
-      "upper_bound": 0.74
+      "lower_bound": 0.48,
+      "upper_bound": 0.76
     },
+    "failure_modes": [
+      {
+        "mode": "COVERAGE",
+        "severity": "HIGH",
+        "risk_probability": 0.35,
+        "evidence": "Sentinel-1 12-day revisit may not have recent pass; regional validation gaps in rainforest SAR applications"
+      },
+      {
+        "mode": "SEMANTIC",
+        "severity": "MEDIUM",
+        "risk_probability": 0.15,
+        "evidence": "RVI/coherence are indirect flood proxies; require ground validation to distinguish water from other dark areas"
+      }
+    ],
     "croissant_rai": {
-      "data_lifecycle": 24,
-      "data_labeling": 22,
-      "participatory_data": 18,
-      "ai_safety_fairness": 24,
-      "traceability": 28,
-      "regulatory_compliance": 20,
-      "inclusion": 16
+      "data_lifecycle": 72,
+      "data_labeling": 58,
+      "participatory_data": 34,
+      "ai_safety_fairness": 66,
+      "traceability": 74,
+      "regulatory_compliance": 58,
+      "inclusion": 44
     },
-    "trustworthiness_score": 36,
-    "primary_failure_mode": "TEMPORAL"
+    "trustworthiness_score": 62,
+    "nist_ai_rmf": {
+      "explainability": 74,
+      "robustness": 62,
+      "calibration": 58,
+      "uncertainty_quantification": 66,
+      "fairness": 60,
+      "repeatability": 68
+    }
   },
-  "recommendation": "Moderate confidence. Sentinel-2 revisit time (5 days) longer than decision window (24h). Recommended: pilot validation with ground-truth sites.",
-  "confidence_level": "MODERATE"
+  
+  "actionable_insights": {
+    "what_worked": "Sentinel-1 SAR is cloud-insensitive, critical for monsoon season. Free access and 12-day revisit acceptable if recent pass exists. Direct water measurement (backscatter) stronger than optical proxies.",
+    "what_could_fail": "12-day revisit means no guarantee of data within 24h. SAR requires expert interpretation (RVI/coherence). Rainforest SAR backscatter is complex; may confuse water with canopy.",
+    "alternative_consideration": "If no Sentinel-1 pass available, MODIS daily revisit preferred (despite 250m coarseness) to meet 24h deadline. Consider hybrid: alert on MODIS, refine with S1 when available."
+  },
+  
+  "confidence_level": "HIGH"
 }
 ```
 
@@ -243,42 +304,85 @@ The EarthAccess GenAI Confidence Assessment Skill provides universal probabilist
   "query_id": "query_robust_000042",
   "mode_used": "robust",
   "timestamp": "2026-08-27T15:30:07Z",
+  "user_query": "What satellite data can I use to map flood extent in Mozambique within 24 hours?",
+  
+  "generated_response": "(Same as Fast mode example above)",
+  
   "assessment": {
     "probabilistic": {
-      "p_high_confidence": 0.58,
-      "p_uncertain": 0.16,
-      "p_risk": 0.26
+      "p_high_confidence": 0.62,
+      "p_uncertain": 0.18,
+      "p_risk": 0.20
     },
     "uncertainty": {
-      "aleatoric_uncertainty": 14,
-      "epistemic_uncertainty": 18
+      "aleatoric_uncertainty": 12,
+      "epistemic_uncertainty": 16
     },
     "credible_interval": {
-      "lower_bound": 0.42,
-      "upper_bound": 0.74
+      "lower_bound": 0.48,
+      "upper_bound": 0.76
     },
-    "croissant_rai": {
-      "data_lifecycle": 24,
-      "ai_safety_fairness": 24,
-      "traceability": 28
-    },
-    "trustworthiness_score": 36,
-    "primary_failure_mode": "TEMPORAL"
-  },
-  "robust_mode_results": {
-    "ensemble_p_confidence_mean": 0.851,
-    "ensemble_p_confidence_std": 0.189,
-    "ensemble_p_confidence_ci": [0.48, 1.0],
-    "robustness_score": 68,
-    "brittleness_indicators": [
-      "HIGH_VARIANCE: std=18.9% > 25% threshold",
-      "TECHNIQUE_BIAS: counter_factual_opposite has mean=38% vs overall=85%",
-      "TECHNIQUE_BIAS: unknown_region has mean=36% vs overall=85%"
+    "failure_modes": [
+      {
+        "mode": "COVERAGE",
+        "severity": "HIGH",
+        "risk_probability": 0.35,
+        "evidence": "Sentinel-1 12-day revisit may not have recent pass; regional validation gaps in rainforest SAR applications"
+      },
+      {
+        "mode": "SEMANTIC",
+        "severity": "MEDIUM",
+        "risk_probability": 0.15,
+        "evidence": "RVI/coherence are indirect flood proxies; require ground validation"
+      }
     ],
-    "variants_tested": 15
+    "croissant_rai": {
+      "data_lifecycle": 72,
+      "data_labeling": 58,
+      "participatory_data": 34,
+      "ai_safety_fairness": 66,
+      "traceability": 74,
+      "regulatory_compliance": 58,
+      "inclusion": 44
+    },
+    "trustworthiness_score": 62,
+    "nist_ai_rmf": {
+      "explainability": 74,
+      "robustness": 62,
+      "calibration": 58,
+      "uncertainty_quantification": 66,
+      "fairness": 60,
+      "repeatability": 68
+    }
   },
-  "recommendation": "⚠️ CONDITIONAL: Ensemble confidence=85% but robustness=68/100 shows sensitivity to prompt wording. Wide credible interval [48%, 100%] indicates brittleness. Recommend pilot validation with 5-10 ground sites before operational deployment.",
-  "confidence_level": "VERY HIGH"
+  
+  "robust_mode_results": {
+    "ensemble_p_confidence_mean": 0.71,
+    "ensemble_p_confidence_std": 0.16,
+    "ensemble_p_confidence_ci": [0.48, 0.88],
+    "robustness_score": 72,
+    "brittleness_indicators": [
+      "MODERATE_VARIANCE: std=16% (acceptable sensitivity to wording)",
+      "TECHNIQUE_BIAS: alternative_phrasing variant shows mean=54% vs overall=71% (SAR terminology sensitive)",
+      "CONTEXT_SENSITIVE: worst-case (unavailable_revisit scenario) drops to 38% confidence"
+    ],
+    "variants_tested": 15,
+    "top_risks_by_variant": {
+      "semantic_rephrase_v1": "78% confidence",
+      "semantic_rephrase_v2": "68% confidence (SAR jargon sensitivity)",
+      "counter_factual_worst_case": "38% confidence (revisit window miss)"
+    }
+  },
+  
+  "actionable_insights": {
+    "what_worked": "Sentinel-1 recommendation is robust to phrasing variations (std=16%). Cloud-insensitivity is core strength. Holds 50%+ confidence even in worst-case scenarios.",
+    "what_could_fail": "Brittleness detected: Recommendation sensitive to SAR terminology (alternative phrasings drop to 68%). Worst-case scenario (no Sentinel-1 revisit within 24h) drops confidence to 38%—this WILL happen sometimes.",
+    "alternative_consideration": "Recommendation would strengthen with explicit fallback guidance (MODIS if S1 unavailable). Consider adding: 'If no Sentinel-1 pass available within 24h window, deploy MODIS immediately rather than waiting.'"
+  },
+  
+  "confidence_level": "HIGH",
+  
+  "deployment_recommendation": "CONDITIONAL: 72/100 robustness score is acceptable for operational deployment. Known brittleness: (1) SAR terminology in response—train users on RVI/coherence, (2) revisit window gap—implement automated fallback to MODIS. Recommended deployment with these guardrails in place."
 }
 ```
 
